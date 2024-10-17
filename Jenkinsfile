@@ -14,36 +14,30 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 script {
-                    
                         dir('frontend/angular-app') {
                             bat 'npm install'
                         }
-                    
                 }
             }
         }
         stage('Build Backend') {
             steps {
                 script {
-                    node {
                         dir('backend/demo') {
                             bat 'mvn clean install'
                         }
-                    }
                 }
             }
         }
         stage('Run Tests') {
             steps {
                 script {
-                    node {
                         dir('backend/demo') {
                             bat 'mvn test'
                         }
                         dir('frontend/angular-app') {
                             bat 'npm test'
                         }
-                    }
                 }
             }
         }
@@ -52,22 +46,18 @@ pipeline {
                 stage('Build Docker Image for Frontend') {
                     steps {
                         script {
-                            node {
                                 dir('frontend/angular-app') {
                                     bat "docker build -t ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER} ."
                                 }
-                            }
                         }
                     }
                 }
                 stage('Build Docker Image for Backend') {
                     steps {
                         script {
-                            node {
                                 dir('backend/demo') {
                                     bat "docker build -t ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER} ."
                                 }
-                            }
                         }
                     }
                 }
@@ -77,7 +67,6 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDENTIALS_ID, usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                        node {
                             bat "docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
                             // Push images
                             dir('frontend/angular-app') {
@@ -86,7 +75,6 @@ pipeline {
                             dir('backend/demo') {
                                 bat "docker push ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER}"
                             }
-                        }
                     }
                 }
             }
@@ -94,7 +82,6 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    node {
                         // Load Kubernetes config
                         writeFile file: 'kubeconfig', text: KUBE_CONFIG
                         // Set the KUBECONFIG environment variable for kubectl to use
@@ -102,7 +89,6 @@ pipeline {
                         // Apply Kubernetes deployment configurations
                         bat 'kubectl apply -f k8s/frontend-deployment.yaml'
                         bat 'kubectl apply -f k8s/backend-deployment.yaml'
-                    }
                 }
             }
         }
@@ -110,10 +96,8 @@ pipeline {
     post {
         always {
             script {
-                node {
                     bat "docker logout"
                 }
-            }
         }
     }
     
