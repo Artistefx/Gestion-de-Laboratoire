@@ -15,7 +15,7 @@ pipeline {
             steps {
                 script {
                     node {
-                        dir('Frontend/angular-app') {
+                        dir('frontend/angular-app') {
                             bat 'npm install'
                         }
                     }
@@ -26,7 +26,7 @@ pipeline {
             steps {
                 script {
                     node {
-                        dir('Backend/demo') {
+                        dir('backend/demo') {
                             bat 'mvn clean install'
                         }
                     }
@@ -37,10 +37,10 @@ pipeline {
             steps {
                 script {
                     node {
-                        dir('Backend/demo') {
+                        dir('backend/demo') {
                             bat 'mvn test'
                         }
-                        dir('Frontend/angular-app') {
+                        dir('frontend/angular-app') {
                             bat 'npm test'
                         }
                     }
@@ -53,7 +53,7 @@ pipeline {
                     steps {
                         script {
                             node {
-                                dir('Frontend/angular-app') {
+                                dir('frontend/angular-app') {
                                     bat "docker build -t ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER} ."
                                 }
                             }
@@ -64,7 +64,7 @@ pipeline {
                     steps {
                         script {
                             node {
-                                dir('Backend/demo') {
+                                dir('backend/demo') {
                                     bat "docker build -t ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER} ."
                                 }
                             }
@@ -80,10 +80,10 @@ pipeline {
                         node {
                             bat "docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
                             // Push images
-                            dir('Frontend/angular-app') {
+                            dir('frontend/angular-app') {
                                 bat "docker push ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER}"
                             }
-                            dir('Backend/demo') {
+                            dir('backend/demo') {
                                 bat "docker push ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER}"
                             }
                         }
