@@ -8,30 +8,42 @@ pipeline {
         DOCKERHUB_CREDENTIALS_ID = '56'
         FRONTEND_IMAGE_NAME = 'artistehmz/labo-frontend'
         BACKEND_IMAGE_NAME = 'artistehmz/labo-backend'
-        KUBE_CONFIG = credentials('kubeconfig') // Assuming you have the Kubernetes config stored in Jenkins credentials
+        KUBE_CONFIG = credentials('kubeconfig') // Fetching the Kubernetes config stored in Jenkins credentials
     }
     stages {
         stage('Build Frontend') {
             steps {
-                dir('Frontend/angular-app') {
-                    bat 'npm install'
+                script {
+                    node {
+                        dir('Frontend/angular-app') {
+                            bat 'npm install'
+                        }
+                    }
                 }
             }
         }
         stage('Build Backend') {
             steps {
-                dir('Backend/demo') {
-                    bat 'mvn clean install'
+                script {
+                    node {
+                        dir('Backend/demo') {
+                            bat 'mvn clean install'
+                        }
+                    }
                 }
             }
         }
         stage('Run Tests') {
             steps {
-                dir('Backend/demo') {
-                    bat 'mvn test'
-                }
-                dir('Frontend/angular-app') {
-                    bat 'npm test'
+                script {
+                    node {
+                        dir('Backend/demo') {
+                            bat 'mvn test'
+                        }
+                        dir('Frontend/angular-app') {
+                            bat 'npm test'
+                        }
+                    }
                 }
             }
         }
@@ -39,15 +51,23 @@ pipeline {
             parallel {
                 stage('Build Docker Image for Frontend') {
                     steps {
-                        dir('Frontend/angular-app') {
-                            bat "docker build -t ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER} ."
+                        script {
+                            node {
+                                dir('Frontend/angular-app') {
+                                    bat "docker build -t ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER} ."
+                                }
+                            }
                         }
                     }
                 }
                 stage('Build Docker Image for Backend') {
                     steps {
-                        dir('Backend/demo') {
-                            bat "docker build -t ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER} ."
+                        script {
+                            node {
+                                dir('Backend/demo') {
+                                    bat "docker build -t ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER} ."
+                                }
+                            }
                         }
                     }
                 }
@@ -57,13 +77,15 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDENTIALS_ID, usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                        bat "docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
-                        // Push images
-                        dir('Frontend/angular-app') {
-                            bat "docker push ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER}"
-                        }
-                        dir('Backend/demo') {
-                            bat "docker push ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER}"
+                        node {
+                            bat "docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
+                            // Push images
+                            dir('Frontend/angular-app') {
+                                bat "docker push ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER}"
+                            }
+                            dir('Backend/demo') {
+                                bat "docker push ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER}"
+                            }
                         }
                     }
                 }
@@ -72,18 +94,26 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Load Kubernetes config
-                    writeFile file: 'kubeconfig', text: KUBE_CONFIG
-                    bat 'kubectl apply -f k8s/frontend-deployment.yaml'
-                    bat 'kubectl apply -f k8s/backend-deployment.yaml'
+                    node {
+                        // Load Kubernetes config
+                        writeFile file: 'kubeconfig', text: KUBE_CONFIG
+                        // Set the KUBECONFIG environment variable for kubectl to use
+                        bat 'set KUBECONFIG=%WORKSPACE%\\kubeconfig'
+                        // Apply Kubernetes deployment configurations
+                        bat 'kubectl apply -f k8s/frontend-deployment.yaml'
+                        bat 'kubectl apply -f k8s/backend-deployment.yaml'
+                    }
                 }
             }
         }
     }
     post {
         always {
-            bat "docker logout"
+            script {
+                node {
+                    bat "docker logout"
+                }
+            }
         }
     }
-    
 }
