@@ -14,11 +14,11 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 script {
-                    node {
+                    
                         dir('frontend/angular-app') {
                             bat 'npm install'
                         }
-                    }
+                    
                 }
             }
         }
