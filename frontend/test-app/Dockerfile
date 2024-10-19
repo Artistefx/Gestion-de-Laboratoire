@@ -21,7 +21,7 @@ RUN ng build
 FROM nginx:alpine
 
 # Copy the built application from the previous stage
-COPY --from=build /app/dist/<your-angular-app-name> /usr/share/nginx/html
+COPY --from=build /app/dist/test-app /usr/share/nginx/html
 
 # Copy a default nginx configuration file (optional)
 COPY nginx.conf /etc/nginx/nginx.conf
