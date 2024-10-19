@@ -16,8 +16,8 @@ pipeline {
                 script {
                     dir('frontend/test-app') {
                         bat 'npm install'
-                        // Check if the image should be rebuilt
-                        def imageExists = sh(script: "docker images -q ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER}", returnStatus: true) == 0
+                        // Build the frontend image
+                        def imageExists = bat(script: "docker images -q ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER}", returnStatus: true) == 0
                         if (!imageExists) {
                             bat "docker build -t ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER} ."
                         } else {
@@ -32,8 +32,8 @@ pipeline {
                 script {
                     dir('backend/demo') {
                         bat 'mvn clean install'
-                        // Check if the image should be rebuilt
-                        def imageExists = sh(script: "docker images -q ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER}", returnStatus: true) == 0
+                        // Build the backend image
+                        def imageExists = bat(script: "docker images -q ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER}", returnStatus: true) == 0
                         if (!imageExists) {
                             bat "docker build -t ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER} ."
                         } else {
@@ -62,14 +62,14 @@ pipeline {
                         bat "docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
                         
                         // Push images and tag them as latest if built
-                        if (sh(script: "docker images -q ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER}", returnStatus: true) == 0) {
+                        if (bat(script: "docker images -q ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER}", returnStatus: true) == 0) {
                             dir('frontend/test-app') {
                                 bat "docker push ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER}"
                                 bat "docker tag ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER} ${FRONTEND_IMAGE_NAME}:latest"
                                 bat "docker push ${FRONTEND_IMAGE_NAME}:latest"
                             }
                         }
-                        if (sh(script: "docker images -q ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER}", returnStatus: true) == 0) {
+                        if (bat(script: "docker images -q ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER}", returnStatus: true) == 0) {
                             dir('backend/demo') {
                                 bat "docker push ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER}"
                                 bat "docker tag ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER} ${BACKEND_IMAGE_NAME}:latest"
@@ -83,11 +83,8 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Load Kubernetes config
                     writeFile file: 'kubeconfig', text: KUBE_CONFIG
-                    // Set the KUBECONFIG environment variable for kubectl to use
                     bat 'set KUBECONFIG=%WORKSPACE%\\kubeconfig'
-                    // Apply Kubernetes deployment configurations
                     bat 'kubectl apply -f k8s/frontend-deployment.yaml'
                     bat 'kubectl apply -f k8s/backend-deployment.yaml'
                 }
