@@ -14,7 +14,7 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 script {
-                        dir('frontend/angular-app') {
+                        dir('frontend/test-app') {
                             bat 'npm install'
                         }
                 }
@@ -35,7 +35,7 @@ pipeline {
                         dir('backend/demo') {
                             bat 'mvn test'
                         }
-                        dir('frontend/angular-app') {
+                        dir('frontend/test-app') {
                             bat 'npm test'
                         }
                 }
@@ -46,7 +46,7 @@ pipeline {
                 stage('Build Docker Image for Frontend') {
                     steps {
                         script {
-                                dir('frontend/angular-app') {
+                                dir('frontend/test-app') {
                                     bat "docker build -t ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER} ."
                                 }
                         }
@@ -69,7 +69,7 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDENTIALS_ID, usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
                             bat "docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
                             // Push images
-                            dir('frontend/angular-app') {
+                            dir('frontend/test-app') {
                                 bat "docker push ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER}"
                             }
                             dir('backend/demo') {
