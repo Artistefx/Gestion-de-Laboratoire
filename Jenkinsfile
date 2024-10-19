@@ -65,6 +65,7 @@ pipeline {
                         if (bat(script: "docker images -q ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER}", returnStatus: true) == 0) {
                             dir('frontend/test-app') {
                                 bat "docker push ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER}"
+                                // Tag and push the latest image
                                 bat "docker tag ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER} ${FRONTEND_IMAGE_NAME}:latest"
                                 bat "docker push ${FRONTEND_IMAGE_NAME}:latest"
                             }
@@ -72,6 +73,7 @@ pipeline {
                         if (bat(script: "docker images -q ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER}", returnStatus: true) == 0) {
                             dir('backend/demo') {
                                 bat "docker push ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER}"
+                                // Tag and push the latest image
                                 bat "docker tag ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER} ${BACKEND_IMAGE_NAME}:latest"
                                 bat "docker push ${BACKEND_IMAGE_NAME}:latest"
                             }
