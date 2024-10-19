@@ -12,25 +12,33 @@ pipeline {
     }
     stages {
         stage('Build Frontend') {
-            when {
-                expression { env.FRONTEND_CHANGED == 'true' }
-            }
             steps {
                 script {
                     dir('frontend/test-app') {
                         bat 'npm install'
+                        // Check if the image should be rebuilt
+                        def imageExists = sh(script: "docker images -q ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER}", returnStatus: true) == 0
+                        if (!imageExists) {
+                            bat "docker build -t ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER} ."
+                        } else {
+                            echo "Frontend image ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER} already exists. Skipping build."
+                        }
                     }
                 }
             }
         }
         stage('Build Backend') {
-            when {
-                expression { env.BACKEND_CHANGED == 'true' }
-            }
             steps {
                 script {
                     dir('backend/demo') {
                         bat 'mvn clean install'
+                        // Check if the image should be rebuilt
+                        def imageExists = sh(script: "docker images -q ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER}", returnStatus: true) == 0
+                        if (!imageExists) {
+                            bat "docker build -t ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER} ."
+                        } else {
+                            echo "Backend image ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER} already exists. Skipping build."
+                        }
                     }
                 }
             }
@@ -47,49 +55,21 @@ pipeline {
                 }
             }
         }
-        stage('Build Docker Images') {
-            parallel {
-                stage('Build Docker Image for Frontend') {
-                    when {
-                        expression { env.FRONTEND_CHANGED == 'true' }
-                    }
-                    steps {
-                        script {
-                            dir('frontend/test-app') {
-                                bat "docker build -t ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER} ."
-                            }
-                        }
-                    }
-                }
-                stage('Build Docker Image for Backend') {
-                    when {
-                        expression { env.BACKEND_CHANGED == 'true' }
-                    }
-                    steps {
-                        script {
-                            dir('backend/demo') {
-                                bat "docker build -t ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER} ."
-                            }
-                        }
-                    }
-                }
-            }
-        }
         stage('Push Docker Images to DockerHub') {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDENTIALS_ID, usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
                         bat "docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
                         
-                        // Push images and tag them as latest
-                        if (env.FRONTEND_CHANGED) {
+                        // Push images and tag them as latest if built
+                        if (sh(script: "docker images -q ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER}", returnStatus: true) == 0) {
                             dir('frontend/test-app') {
                                 bat "docker push ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER}"
                                 bat "docker tag ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER} ${FRONTEND_IMAGE_NAME}:latest"
                                 bat "docker push ${FRONTEND_IMAGE_NAME}:latest"
                             }
                         }
-                        if (env.BACKEND_CHANGED) {
+                        if (sh(script: "docker images -q ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER}", returnStatus: true) == 0) {
                             dir('backend/demo') {
                                 bat "docker push ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER}"
                                 bat "docker tag ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER} ${BACKEND_IMAGE_NAME}:latest"
