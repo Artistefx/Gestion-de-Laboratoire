@@ -8,7 +8,7 @@ pipeline {
         DOCKERHUB_CREDENTIALS_ID = '56'
         FRONTEND_IMAGE_NAME = 'artistehmz/labo-frontend'
         BACKEND_IMAGE_NAME = 'artistehmz/labo-backend'
-        KUBE_CONFIG = credentials('kubeconfig') // Configuration Kubernetes
+        KUBE_CONFIG = credentials('kubeconfig') // Fetching the Kubernetes config stored in Jenkins credentials
     }
     stages {
         stage('Build Frontend') {
@@ -16,7 +16,8 @@ pipeline {
                 script {
                     dir('frontend/test-app') {
                         bat 'npm install'
-                        bat "docker build -t ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER} ."
+                        // Build the frontend
+                        bat 'npm run build'
                     }
                 }
             }
@@ -26,38 +27,55 @@ pipeline {
                 script {
                     dir('backend/demo') {
                         bat 'mvn clean install'
-                        bat "docker build -t ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER} ."
                     }
                 }
             }
         }
-        stage('Run Tests') {
+        stage('Run Frontend Tests') {
             steps {
                 script {
-                    dir('backend/demo') {
-                        bat 'mvn test'
-                    }
                     dir('frontend/test-app') {
                         bat 'npm test'
                     }
                 }
             }
         }
-        stage('Push Docker Images to DockerHub') {
+        stage('Run Backend Tests') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDENTIALS_ID, usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                        bat "docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
-                        
-                        // Pousser les images avec le BUILD_NUMBER
-                        bat "docker push ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER}"
-                        bat "docker push ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER}"
-                        
-                        // Tag et pousser l'image latest
-                        bat "docker tag ${FRONTEND_IMAGE_NAME}:${BUILD_NUMBER} ${FRONTEND_IMAGE_NAME}:latest"
-                        bat "docker push ${FRONTEND_IMAGE_NAME}:latest"
-                        bat "docker tag ${BACKEND_IMAGE_NAME}:${BUILD_NUMBER} ${BACKEND_IMAGE_NAME}:latest"
-                        bat "docker push ${BACKEND_IMAGE_NAME}:latest"
+                    dir('backend/demo') {
+                        bat 'mvn test'
+                    }
+                }
+            }
+        }
+        stage('Build and Push Docker Images') {
+            steps {
+                script {
+                    // Build and push frontend image
+                    dir('frontend/test-app') {
+                        // Remove existing image if it exists
+                        bat "docker rmi -f ${FRONTEND_IMAGE_NAME}:latest || echo 'No existing frontend image to remove'"
+                        // Build and tag the latest image
+                        bat "docker build -t ${FRONTEND_IMAGE_NAME}:latest ."
+                        // Push the latest image to DockerHub
+                        withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDENTIALS_ID, usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                            bat "docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
+                            bat "docker push ${FRONTEND_IMAGE_NAME}:latest"
+                        }
+                    }
+                    
+                    // Build and push backend image
+                    dir('backend/demo') {
+                        // Remove existing image if it exists
+                        bat "docker rmi -f ${BACKEND_IMAGE_NAME}:latest || echo 'No existing backend image to remove'"
+                        // Build and tag the latest image
+                        bat "docker build -t ${BACKEND_IMAGE_NAME}:latest ."
+                        // Push the latest image to DockerHub
+                        withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDENTIALS_ID, usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                            bat "docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%"
+                            bat "docker push ${BACKEND_IMAGE_NAME}:latest"
+                        }
                     }
                 }
             }
