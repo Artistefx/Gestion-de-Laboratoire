@@ -86,7 +86,7 @@ pipeline {
                     def kubeconfigFile = 'kubeconfig'
                     writeFile file: kubeconfigFile, text: ''
                     // Load the kubeconfig from the Jenkins secret file
-                    withCredentials([file(credentialsId: 'kubeconf', variable: 'KUBE_CONFIG_FILE')]) {
+                    withCredentials([file(credentialsId: 'Kubeconf', variable: 'KUBE_CONFIG_FILE')]) {
                         bat "copy /Y %KUBE_CONFIG_FILE% %WORKSPACE%\\${kubeconfigFile}"
                     }
                     // Set KUBECONFIG environment variable for kubectl
