@@ -8,7 +8,7 @@ pipeline {
         DOCKERHUB_CREDENTIALS_ID = '56'
         FRONTEND_IMAGE_NAME = 'artistehmz/labo-frontend'
         BACKEND_IMAGE_NAME = 'artistehmz/labo-backend'
-        KUBE_CONFIG = 'C:\\Users\\HP\\.kube\\config'
+        KUBE_CONFIG = credentials('kubeconfig') // Fetching the Kubernetes config stored in Jenkins credentials
     }
     stages {
         stage('Build Frontend') {
@@ -84,7 +84,7 @@ pipeline {
             steps {
                 script {
                     writeFile file: 'kubeconfig', text: KUBE_CONFIG
-                    bat 'set KUBECONFIG = C:\\Users\\HP\\.kube\\config'
+                    bat 'set KUBECONFIG=%WORKSPACE%\\kubeconfig'
                     bat 'kubectl config view'
                     bat 'kubectl apply -f k8s/frontend-deployment.yaml --validate=false'
                     bat 'kubectl apply -f k8s/backend-deployment.yaml --validate=false'
