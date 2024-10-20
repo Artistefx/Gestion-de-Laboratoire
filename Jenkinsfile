@@ -85,6 +85,7 @@ pipeline {
                 script {
                     writeFile file: 'kubeconfig', text: KUBE_CONFIG
                     bat 'set KUBECONFIG=%WORKSPACE%\\kubeconfig'
+                    bat 'kubectl config view'
                     bat 'kubectl apply -f k8s/frontend-deployment.yaml --validate=false'
                     bat 'kubectl apply -f k8s/backend-deployment.yaml --validate=false'
                 }
