@@ -91,6 +91,8 @@ pipeline {
                     }
                     // Set KUBECONFIG environment variable for kubectl
                     bat "set KUBECONFIG=%WORKSPACE%\\${kubeconfigFile}"
+                    //View context
+                    bat 'kubectl config get-contexts'
                     // Verify the configuration
                     bat 'kubectl config view'
                     // Deploy the applications
