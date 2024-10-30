@@ -11,17 +11,21 @@ pipeline {
             }
         }
 
-        stage('Build and Test Customer Service') {
+        stage('Build and Test Laboratoire Service') {
             steps {
+                dir('backend/LaboMicroServices/Service-Laboratoire') {
                     // Run Maven build and tests
                     bat 'mvn clean install -DskipTests=false'
+                }
             }
         }
 
         stage('Build Docker Image') {
             steps {
+                dir('backend/LaboMicroServices/Service-Laboratoire') {
                     // Build the Docker image
                     bat 'docker build -t artistefx/service-laboratoire:latest .'
+                }
             }
         }
 
@@ -36,7 +40,7 @@ pipeline {
                     bat 'kubectl config get-contexts'
 
                     // Apply Kubernetes manifests
-                    bat 'kubectl apply -f k8s/Service-Laboratoire-Deployment.yaml'
+                        bat 'kubectl apply -f Service-Laboratoire-Deployment.yaml'
                 }
             }
         }
