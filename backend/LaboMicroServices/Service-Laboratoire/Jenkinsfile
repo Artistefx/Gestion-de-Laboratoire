@@ -11,20 +11,20 @@ pipeline {
             }
         }
 
-        stage('Build and Test Laboratoire Service') {
-            steps {
-                dir('backend/LaboMicroServices/Service-Laboratoire') {
-                    // Run Maven build and tests
-                    bat 'mvn clean install -DskipTests=false'
-                }
-            }
-        }
-
         stage('Set Up Minikube Environment') {
             steps {
                 script {
                     // Set up the Docker environment for Minikube
                     bat '@FOR /f "tokens=*" %i IN (\'minikube docker-env\') DO @%i'
+                }
+            }
+        }
+
+        stage('Build and Test Laboratoire Service') {
+            steps {
+                dir('backend/LaboMicroServices/Service-Laboratoire') {
+                    // Run Maven build and tests
+                    bat 'mvn clean install -DskipTests=false'
                 }
             }
         }
