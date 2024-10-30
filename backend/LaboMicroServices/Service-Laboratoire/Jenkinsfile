@@ -40,7 +40,7 @@ pipeline {
                     bat 'kubectl config get-contexts'
 
                     // Apply Kubernetes manifests
-                        bat 'kubectl apply -f Service-Laboratoire-Deployment.yaml'
+                        bat 'kubectl apply -f k8s/Service-Laboratoire-Deployment.yaml'
                 }
             }
         }
