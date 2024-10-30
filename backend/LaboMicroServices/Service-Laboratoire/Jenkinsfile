@@ -11,16 +11,6 @@ pipeline {
             }
         }
 
-       stage('Set Up Minikube Environment') {
-            steps {
-                script {
-                    // Use Minikube's Docker daemon
-                    bat 'CALL minikube docker-env --shell cmd | FINDSTR "set" > docker_env.cmd'
-                    bat 'CALL docker_env.cmd'
-                }
-            }
-        }
-
         stage('Build and Test Laboratoire Service') {
             steps {
                 dir('backend/LaboMicroServices/Service-Laboratoire') {
