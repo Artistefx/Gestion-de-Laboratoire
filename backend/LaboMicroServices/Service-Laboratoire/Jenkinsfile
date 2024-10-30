@@ -20,6 +20,15 @@ pipeline {
             }
         }
 
+        stage('Set Up Minikube Environment') {
+            steps {
+                script {
+                    // Set up the Docker environment for Minikube
+                    bat '@FOR /f "tokens=*" %i IN (\'minikube docker-env\') DO @%i'
+                }
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 dir('backend/LaboMicroServices/Service-Laboratoire') {
