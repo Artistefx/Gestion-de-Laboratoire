@@ -17,7 +17,7 @@ spec:
           image: artistefx/service-laboratoire:latest  # Make sure this matches
           ports:
             - containerPort: 8080  # Your service port
-          imagePullPolicy: Never
+          imagePullPolicy: Always
 ---
 apiVersion: v1
 kind: Service
