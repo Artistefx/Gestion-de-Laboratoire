@@ -1,0 +1,44 @@
+pipeline {
+    agent any
+    tools {
+        maven "maven-3.9.7"
+    }
+    stages {
+        stage('Checkout Code') {
+            steps {
+                // Checkout the code from the repository
+                checkout scm
+            }
+        }
+
+        stage('Build and Test Customer Service') {
+            steps {
+                    // Run Maven build and tests
+                    bat 'mvn clean install -DskipTests=false'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                    // Build the Docker image
+                    bat 'docker build -t artistefx/service-laboratoire:latest .'
+            }
+        }
+
+        stage('Deploy to Minikube') {
+            steps {
+                script {
+                    // Set the KUBECONFIG environment variable to the path of your kubeconfig file
+                    env.KUBECONFIG = 'C:\\Users\\HP\\.kube\\config' // Adjust this path as needed
+
+                    // Run kubectl commands
+                    bat 'kubectl config view'
+                    bat 'kubectl config get-contexts'
+
+                    // Apply Kubernetes manifests
+                    bat 'kubectl apply -f k8s/Service-Laboratoire-Deployment.yaml'
+                }
+            }
+        }
+    }
+}
