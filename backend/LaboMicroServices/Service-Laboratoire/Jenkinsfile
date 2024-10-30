@@ -15,7 +15,9 @@ pipeline {
             steps {
                 script {
                     // Set up the Docker environment for Minikube
-                    bat '@FOR /f "tokens=*" %i IN (\'minikube docker-env\') DO @%i'
+                    bat 'C:\\minikube\\minikube.exe docker-env --shell cmd > temp_docker_env.cmd'
+                    bat 'call temp_docker_env.cmd'
+                    bat 'del temp_docker_env.cmd'  // Clean up the temporary file
                 }
             }
         }
