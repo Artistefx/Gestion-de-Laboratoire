@@ -12,14 +12,14 @@
   <url>https://www.example.com</url>
   <modules>
 
-    <module>testAnalyse</module>
-    <module>Epreuve</module>
-    <module>Dossier</module>
-    <module>Examin</module>
-    <module>Analyse</module>
+
+
+
+
     <module>Service-Utilisateurs</module>
     <module>Service-Laboratoire</module>
     <module>Service-Analyses</module>
+    <module>Service-Examination</module>
   </modules>
 
   <properties>
