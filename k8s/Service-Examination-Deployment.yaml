@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-examination
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-examination
+  template:
+    metadata:
+      labels:
+        app: service-examination
+    spec:
+      containers:
+        - name: service-examination
+          image: artistefx/service-examination:latest  # Make sure this matches
+          ports:
+            - containerPort: 8080  # Your service port
+          imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-examination
+spec:
+  selector:
+    app: service-examination
+  ports:
+    - protocol: TCP
+      port: 80         # Port exposed by the service
+      targetPort: 8080 # Port on which the container is listening
+      name: http
+  type: ClusterIP

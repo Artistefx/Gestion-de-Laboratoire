@@ -6,14 +6,13 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                // Checkout the code from the repository
-                checkout scm
+                bat 'git pull origin master'
             }
         }
 
-        stage('Build and Test Laboratoire Service') {
+        stage('Build and Test Examination Service') {
             steps {
-                dir('LaboMicroServices/Service-Laboratoire') {
+                dir('LaboMicroServices/Service-Examination') {
                     // Run Maven build and tests
                     bat 'mvn clean install -DskipTests=false'
                 }
@@ -22,9 +21,9 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                dir('LaboMicroServices/Service-Laboratoire') {
+                dir('LaboMicroServices/Service-Examination') {
                     // Build the Docker image
-                    bat 'docker build -t artistefx/service-laboratoire:latest .'
+                    bat 'docker build -t artistefx/service-examination:latest .'
                 }
             }
         }
@@ -34,7 +33,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'docker-artistefx', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
                     script {
                         bat 'docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%'
-                        bat "docker push artistefx/service-laboratoire:latest"
+                        bat "docker push artistefx/service-examination:latest"
                     }
                 }
             }
@@ -51,7 +50,7 @@ pipeline {
                     //bat 'kubectl config get-contexts'
 
                     // Apply Kubernetes manifests
-                    bat 'kubectl apply -f k8s/Service-Laboratoire-Deployment.yaml'
+                    bat 'kubectl apply -f k8s/Service-Examination-Deployment.yaml'
                 }
             }
         }
