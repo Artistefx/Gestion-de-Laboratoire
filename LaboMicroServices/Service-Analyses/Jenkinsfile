@@ -6,8 +6,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                // Checkout the code from the repository
-                checkout scm
+                bat 'git pull origin master'
             }
         }
 
