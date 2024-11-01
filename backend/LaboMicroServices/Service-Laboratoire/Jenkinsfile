@@ -29,6 +29,17 @@ pipeline {
             }
         }
 
+        stage('Push Docker Image to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-artistefx', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    script {
+                        bat 'docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%'
+                        bat "docker push artistefx/service-laboratoire:latest"
+                    }
+                }
+            }
+        }
+
         stage('Deploy to Minikube') {
             steps {
                 script {
@@ -40,7 +51,7 @@ pipeline {
                     bat 'kubectl config get-contexts'
 
                     // Apply Kubernetes manifests
-                        bat 'kubectl apply -f k8s/Service-Laboratoire-Deployment.yaml'
+                    bat 'kubectl apply -f k8s/Service-Laboratoire-Deployment.yaml'
                 }
             }
         }

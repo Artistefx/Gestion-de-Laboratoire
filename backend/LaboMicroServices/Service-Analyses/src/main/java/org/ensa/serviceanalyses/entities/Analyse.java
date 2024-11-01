@@ -15,7 +15,7 @@ import lombok.*;
 public class Analyse {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    //private Long fkIdLaboratoire;
+    private Long fkIdLaboratoire;
     private String nom;
     private String description;
 }
