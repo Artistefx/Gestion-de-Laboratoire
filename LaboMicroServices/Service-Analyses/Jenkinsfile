@@ -1,0 +1,59 @@
+pipeline {
+    agent any
+    tools {
+        maven "maven-3.9.7"
+    }
+    stages {
+        stage('Checkout Code') {
+            steps {
+                // Checkout the code from the repository
+                checkout scm
+            }
+        }
+
+        stage('Build and Test Analyses Service') {
+            steps {
+                dir('LaboMicroServices/Service-Analyses') {
+                    // Run Maven build and tests
+                    bat 'mvn clean install -DskipTests=false'
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                dir('LaboMicroServices/Service-Analyses') {
+                    // Build the Docker image
+                    bat 'docker build -t artistefx/service-analyses:latest .'
+                }
+            }
+        }
+
+        stage('Push Docker Image to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-artistefx', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    script {
+                        bat 'docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%'
+                        bat "docker push artistefx/service-analyses:latest"
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Minikube') {
+            steps {
+                script {
+                    // Set the KUBECONFIG environment variable to the path of your kubeconfig file
+                    env.KUBECONFIG = 'C:\\Users\\HP\\.kube\\config' // Adjust this path as needed
+
+                    // Run kubectl commands
+                    //bat 'kubectl config view'
+                    //bat 'kubectl config get-contexts'
+
+                    // Apply Kubernetes manifests
+                    bat 'kubectl apply -f k8s/Service-Analyses-Deployment.yaml'
+                }
+            }
+        }
+    }
+}
