@@ -3,14 +3,39 @@ pipeline {
     tools {
         maven "maven-3.9.7"
     }
+    environment {
+        CHANGED = false
+    }
     stages {
+        stage('Check for Changes') {
+            steps {
+                script {
+                    // Check if there are any changes in the specified folder
+                    def changes = bat(script: 'git diff --name-only HEAD~1 HEAD', returnStdout: true).trim()
+                    if (changes.contains("LaboMicroServices/Service-Utilisateurs/")) {
+                        echo "Changes detected in LaboMicroServices/Service-Utilisateurs. Continuing with the build."
+                        env.CHANGED = true
+                    } else {
+                        echo "No changes detected in LaboMicroServices/Service-Utilisateurs. Marking build as successful without further action."
+                        currentBuild.result = 'SUCCESS'
+                    }
+                }
+            }
+        }
+
         stage('Checkout Code') {
+            when {
+                expression { env.CHANGED == 'true' }
+            }
             steps {
                 bat 'git pull origin master'
             }
         }
 
         stage('Build and Test Utilisateurs Service') {
+            when {
+                expression { env.CHANGED == 'true' }
+            }
             steps {
                 dir('LaboMicroServices/Service-Utilisateurs') {
                     // Run Maven build and tests
@@ -20,6 +45,9 @@ pipeline {
         }
 
         stage('Build Docker Image') {
+            when {
+                expression { env.CHANGED == 'true' }
+            }
             steps {
                 dir('LaboMicroServices/Service-Utilisateurs') {
                     // Build the Docker image
@@ -29,6 +57,9 @@ pipeline {
         }
 
         stage('Push Docker Image to Docker Hub') {
+            when {
+                expression { env.CHANGED == 'true' }
+            }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-artistefx', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
                     script {
@@ -40,17 +71,22 @@ pipeline {
         }
 
         stage('Deploy to Minikube') {
+            when {
+                expression { env.CHANGED == 'true' }
+            }
             steps {
                 script {
-                    // Set the KUBECONFIG environment variable to the path of your kubeconfig file
                     env.KUBECONFIG = 'C:\\Users\\HP\\.kube\\config' // Adjust this path as needed
-
-                    // Run kubectl commands
-                    //bat 'kubectl config view'
-                    //bat 'kubectl config get-contexts'
-
-                    // Apply Kubernetes manifests
                     bat 'kubectl apply -f k8s/Service-Utilisateurs-Deployment.yaml'
+                }
+            }
+        }
+    }
+    post {
+        success {
+            script {
+                if (!env.CHANGED) {
+                    echo 'No changes to build. Job marked as successful without build steps.'
                 }
             }
         }
