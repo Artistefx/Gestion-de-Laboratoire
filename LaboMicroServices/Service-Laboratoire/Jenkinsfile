@@ -75,9 +75,10 @@ pipeline {
                 expression { env.CHANGED == 'true' }
             }
             steps {
-                script {
-                    env.KUBECONFIG = 'C:\\Users\\HP\\.kube\\config' // Adjust this path as needed
-                    bat 'kubectl apply -f k8s/Service-Laboratoire-Deployment.yaml'
+                withCredentials([string(credentialsId: 'kubeconf', variable: 'KUBECONFIG_PATH')]) {
+                    script {
+                        bat "kubectl --kubeconfig=%KUBECONFIG_PATH% apply -f k8s/Service-Laboratoire-Deployment.yaml"
+                    }
                 }
             }
         }
