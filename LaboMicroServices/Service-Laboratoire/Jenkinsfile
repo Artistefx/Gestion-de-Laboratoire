@@ -4,7 +4,7 @@ pipeline {
         maven "maven-3.9.7"
     }
     environment {
-        CHANGED = false
+        CHANGED = "false"
     }
     stages {
         stage('Check for Changes') {
@@ -14,7 +14,7 @@ pipeline {
                     def changes = bat(script: 'git diff --name-only HEAD~1 HEAD', returnStdout: true).trim()
                     if (changes.contains("LaboMicroServices/Service-Laboratoire/")) {
                         echo "Changes detected in LaboMicroServices/Service-Laboratoire. Continuing with the build."
-                        env.CHANGED = true
+                        env.CHANGED = "true" // Set as string "true" instead of boolean true
                     } else {
                         echo "No changes detected in LaboMicroServices/Service-Laboratoire. Marking build as successful without further action."
                         currentBuild.result = 'SUCCESS'
@@ -25,7 +25,7 @@ pipeline {
 
         stage('Checkout Code') {
             when {
-                expression { env.CHANGED == 'true' }
+                expression { env.CHANGED == "true" } // Check as string
             }
             steps {
                 bat 'git pull origin master'
@@ -34,7 +34,7 @@ pipeline {
 
         stage('Build and Test Laboratoire Service') {
             when {
-                expression { env.CHANGED == 'true' }
+                expression { env.CHANGED == "true" } // Check as string
             }
             steps {
                 dir('LaboMicroServices/Service-Laboratoire') {
@@ -46,7 +46,7 @@ pipeline {
 
         stage('Build Docker Image') {
             when {
-                expression { env.CHANGED == 'true' }
+                expression { env.CHANGED == "true" } // Check as string
             }
             steps {
                 dir('LaboMicroServices/Service-Laboratoire') {
@@ -58,7 +58,7 @@ pipeline {
 
         stage('Push Docker Image to Docker Hub') {
             when {
-                expression { env.CHANGED == 'true' }
+                expression { env.CHANGED == "true" } // Check as string
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-artistefx', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
@@ -72,7 +72,7 @@ pipeline {
 
         stage('Deploy to Minikube') {
             when {
-                expression { env.CHANGED == 'true' }
+                expression { env.CHANGED == "true" } // Check as string
             }
             steps {
                 withCredentials([string(credentialsId: 'kubeconf', variable: 'KUBECONFIG_PATH')]) {
@@ -86,7 +86,7 @@ pipeline {
     post {
         success {
             script {
-                if (!env.CHANGED) {
+                if (env.CHANGED == "false") {
                     echo 'No changes to build. Job marked as successful without build steps.'
                 }
             }
