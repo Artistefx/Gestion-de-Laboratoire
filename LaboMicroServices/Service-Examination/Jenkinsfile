@@ -3,9 +3,6 @@ pipeline {
     tools {
         maven "maven-3.9.7"
     }
-    environment {
-        CHANGED = false
-    }
     stages {
         stage('Check for Changes') {
             steps {
@@ -14,7 +11,7 @@ pipeline {
                     def changes = bat(script: 'git diff --name-only HEAD~1 HEAD', returnStdout: true).trim()
                     if (changes.contains("LaboMicroServices/Service-Examination/")) {
                         echo "Changes detected in LaboMicroServices/Service-Examination. Continuing with the build."
-                        env.CHANGED = true
+                        currentBuild.description = "CHANGED"
                     } else {
                         echo "No changes detected in LaboMicroServices/Service-Examination. Marking build as successful without further action."
                         currentBuild.result = 'SUCCESS'
@@ -25,7 +22,7 @@ pipeline {
 
         stage('Checkout Code') {
             when {
-                expression { env.CHANGED == 'true' }
+                expression { currentBuild.description == "CHANGED" }
             }
             steps {
                 bat 'git pull origin master'
@@ -34,7 +31,7 @@ pipeline {
 
         stage('Build and Test Examination Service') {
             when {
-                expression { env.CHANGED == 'true' }
+                expression { currentBuild.description == "CHANGED" }
             }
             steps {
                 dir('LaboMicroServices/Service-Examination') {
@@ -46,7 +43,7 @@ pipeline {
 
         stage('Build Docker Image') {
             when {
-                expression { env.CHANGED == 'true' }
+                expression { currentBuild.description == "CHANGED" }
             }
             steps {
                 dir('LaboMicroServices/Service-Examination') {
@@ -58,7 +55,7 @@ pipeline {
 
         stage('Push Docker Image to Docker Hub') {
             when {
-                expression { env.CHANGED == 'true' }
+                expression { currentBuild.description == "CHANGED" }
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-artistefx', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
@@ -72,12 +69,13 @@ pipeline {
 
         stage('Deploy to Minikube') {
             when {
-                expression { env.CHANGED == 'true' }
+                expression { currentBuild.description == "CHANGED" }
             }
             steps {
-                script {
-                    env.KUBECONFIG = 'C:\\Users\\HP\\.kube\\config' // Adjust this path as needed
-                    bat 'kubectl apply -f k8s/Service-Examination-Deployment.yaml'
+                withCredentials([string(credentialsId: 'kubeconf', variable: 'KUBECONFIG_PATH')]) {
+                    script {
+                        bat "kubectl --kubeconfig=%KUBECONFIG_PATH% apply -f k8s/Service-Examination-Deployment.yaml"
+                    }
                 }
             }
         }
@@ -85,7 +83,7 @@ pipeline {
     post {
         success {
             script {
-                if (!env.CHANGED) {
+                if (currentBuild.description != "CHANGED") {
                     echo 'No changes to build. Job marked as successful without build steps.'
                 }
             }
