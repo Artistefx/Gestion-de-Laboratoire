@@ -18,5 +18,6 @@ public class Adresse {
     private String ville ;
     private String commmune ;
 
-
+    @OneToOne(mappedBy = "adresse")
+    private ContactLaboratoire contactLaboratoire;
 }

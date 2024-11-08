@@ -16,8 +16,7 @@ import java.util.Optional;
 @RequestMapping("/laboratoire")
 public class LaboratoireRestController {
 
-    @Autowired
-    private LaboratoireRepository laboratoireRepository;
+    private final LaboratoireRepository laboratoireRepository;
 
     public LaboratoireRestController(LaboratoireRepository laboratoireRepository) {
         this.laboratoireRepository = laboratoireRepository;
@@ -66,7 +65,15 @@ public class LaboratoireRestController {
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
 
-
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Laboratoire> deleteLaboratoire(@PathVariable("id") Long id) {
+        Optional<Laboratoire> laboratoire = laboratoireRepository.findById(id);
+        if (laboratoire.isPresent()) {
+            laboratoireRepository.delete(laboratoire.get());
+            return new ResponseEntity<>(laboratoire.get(), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }

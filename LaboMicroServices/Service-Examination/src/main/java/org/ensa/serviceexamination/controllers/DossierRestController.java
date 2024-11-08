@@ -2,7 +2,9 @@ package org.ensa.serviceexamination.controllers;
 
 import org.ensa.serviceexamination.entities.Dossier;
 import org.ensa.serviceexamination.repositories.DossierRepository;
+import org.ensa.serviceexamination.services.DossierService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,15 +16,22 @@ import java.util.Optional;
 public class DossierRestController {
 
     private final DossierRepository dossierRepository;
+    private final DossierService dossierService;
 
-    @Autowired
-    public DossierRestController(DossierRepository dossierRepository) {
+
+    public DossierRestController(DossierRepository dossierRepository, DossierService dossierService) {
         this.dossierRepository = dossierRepository;
+        this.dossierService = dossierService;
     }
 
     @PostMapping
-    public Dossier createDossier(@RequestBody Dossier dossier) {
-        return dossierRepository.save(dossier);
+    public ResponseEntity<?> createDossier(@RequestBody Dossier dossier) {
+        try{
+            dossierService.CreateOrUpdateDossier(dossier);
+            return new ResponseEntity<>(dossier, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping
@@ -37,15 +46,21 @@ public class DossierRestController {
     }
 
     @PutMapping("/{numDossier}")
-    public ResponseEntity<Dossier> updateDossier(@PathVariable Long numDossier, @RequestBody Dossier updatedDossier) {
-        return dossierRepository.findById(numDossier).map(existingDossier -> {
-            existingDossier.setFkIdUtilisateur(updatedDossier.getFkIdUtilisateur());
-            existingDossier.setFkIdPatient(updatedDossier.getFkIdPatient());
-            existingDossier.setDate(updatedDossier.getDate());
-            Dossier savedDossier = dossierRepository.save(existingDossier);
-            return ResponseEntity.ok(savedDossier);
-        }).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<?> updateDossier(@PathVariable Long numDossier, @RequestBody Dossier updatedDossier) {
+        try {
+            return dossierRepository.findById(numDossier).map(existingDossier -> {
+                existingDossier.setFkEmailUtilisateur(updatedDossier.getFkEmailUtilisateur());
+                existingDossier.setFkIdPatient(updatedDossier.getFkIdPatient());
+                existingDossier.setDate(updatedDossier.getDate());
+                existingDossier.setExamins(updatedDossier.getExamins());
+                dossierService.CreateOrUpdateDossier(existingDossier);
+                return new ResponseEntity<>(existingDossier, HttpStatus.OK);
+            }).orElseGet(() -> ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
+
 
     @DeleteMapping("/{numDossier}")
     public ResponseEntity<Void> deleteDossier(@PathVariable Long numDossier) {

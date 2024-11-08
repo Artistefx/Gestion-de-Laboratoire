@@ -4,7 +4,9 @@ package org.ensa.servicelaboratoire.controllers;
 
 import org.ensa.servicelaboratoire.entities.ContactLaboratoire;
 import org.ensa.servicelaboratoire.repositories.ContactLaboratoireRepository;
+import org.ensa.servicelaboratoire.services.ContactLaboratoireService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,11 +17,13 @@ import java.util.Optional;
 @RequestMapping("/contactLaboratoire")
 public class ContactLaboratoireRestController {
 
-    @Autowired
-    private ContactLaboratoireRepository contactLaboratoireRepository;
+    private final ContactLaboratoireRepository contactLaboratoireRepository;
+    private final ContactLaboratoireService contactLaboratoireService;
 
-    public ContactLaboratoireRestController(ContactLaboratoireRepository contactLaboratoireRepository) {
+    public ContactLaboratoireRestController(ContactLaboratoireRepository contactLaboratoireRepository,
+                                            ContactLaboratoireService contactLaboratoireService) {
         this.contactLaboratoireRepository = contactLaboratoireRepository;
+        this.contactLaboratoireService = contactLaboratoireService;
     }
 
 
@@ -37,22 +41,28 @@ public class ContactLaboratoireRestController {
 
 
     @PostMapping
-    public ContactLaboratoire createContact(@RequestBody ContactLaboratoire contact) {
-        return contactLaboratoireRepository.save(contact);
+    public ResponseEntity<?> createContact(@RequestBody ContactLaboratoire contact) {
+        try {
+            ContactLaboratoire savedContact = contactLaboratoireService.createContactLaboratoire(contact);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedContact);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur: Une erreur est survenue lors de la création du contact.");
+        }
     }
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<ContactLaboratoire> updateContact(@PathVariable Long id, @RequestBody ContactLaboratoire updatedContact) {
-        return contactLaboratoireRepository.findById(id).map(existingContact -> {
-            existingContact.setLaboratoire(updatedContact.getLaboratoire());
-            existingContact.setAdresse(updatedContact.getAdresse());
-            existingContact.setNumTel(updatedContact.getNumTel());
-            existingContact.setFax(updatedContact.getFax());
-            existingContact.setEmail(updatedContact.getEmail());
-            ContactLaboratoire savedContact = contactLaboratoireRepository.save(existingContact);
-            return ResponseEntity.ok(savedContact);
-        }).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<?> updateContact(@PathVariable Long id, @RequestBody ContactLaboratoire updatedContact) {
+        try {
+            ContactLaboratoire savedContact = contactLaboratoireService.updateContactLaboratoire(id, updatedContact);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedContact);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur: Une erreur est survenue lors de la création du contact.");
+        }
     }
 
 

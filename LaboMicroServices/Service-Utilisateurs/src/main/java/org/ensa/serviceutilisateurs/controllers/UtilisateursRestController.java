@@ -1,9 +1,14 @@
 package org.ensa.serviceutilisateurs.controllers;
 
 
-import org.ensa.serviceutilisateurs.entities.utilisateurs;
+import feign.FeignException;
+import org.ensa.serviceutilisateurs.DTOs.LaboratoireDTO;
+import org.ensa.serviceutilisateurs.clients.LaboratoireClient;
+import org.ensa.serviceutilisateurs.entities.Utilisateurs;
 import org.ensa.serviceutilisateurs.repositories.UtilisateursRepository;
+import org.ensa.serviceutilisateurs.services.UtilisateursService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,48 +19,67 @@ import java.util.Optional;
 @RequestMapping("/utilisateurs")
 public class UtilisateursRestController {
 
-    @Autowired
-    private UtilisateursRepository utilisateursRepository;
+    private final UtilisateursRepository utilisateursRepository;
+    private final UtilisateursService utilisateursService;
 
-    public UtilisateursRestController(UtilisateursRepository utilisateursRepository) {
+    public UtilisateursRestController(UtilisateursRepository utilisateursRepository ,
+                                      UtilisateursService utilisateursService
+                                      ) {
         this.utilisateursRepository = utilisateursRepository;
+        this.utilisateursService = utilisateursService;
     }
 
-    // Récupérer tous les utilisateurs
+
     @GetMapping
-    public List<utilisateurs> utilisateursList() {
+    public List<Utilisateurs> utilisateursList() {
         return utilisateursRepository.findAll();
     }
 
-    // Récupérer un utilisateur par son email
+
     @GetMapping("/{email}")
-    public ResponseEntity<utilisateurs> getUtilisateurByEmail(@PathVariable String email) {
-        Optional<utilisateurs> utilisateur = utilisateursRepository.findById(email);
+    public ResponseEntity<Utilisateurs> getUtilisateurByEmail(@PathVariable String email) {
+        Optional<Utilisateurs> utilisateur = utilisateursRepository.findById(email);
         return utilisateur.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/exists/{email}")
+    public ResponseEntity<Boolean> patientExists(@PathVariable String email) {
+        if (utilisateursRepository.existsById(email)){
+            return ResponseEntity.ok(Boolean.TRUE);
+        }
+        return ResponseEntity.ok(Boolean.FALSE);
+    }
 
     @PostMapping
-    public utilisateurs addUtilisateur(@RequestBody utilisateurs newUtilisateur) {
-        return utilisateursRepository.save(newUtilisateur);
+    public ResponseEntity<?> addUtilisateur(@RequestBody Utilisateurs newUtilisateur) {
+            try{
+                Utilisateurs savedUser = utilisateursService.createUtilisateur(newUtilisateur);
+                return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+            } catch (IllegalArgumentException ex) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+            } catch (FeignException.NotFound e) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Laboratoire n'existe pas");
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur inconnue");
+            }
     }
 
 
     @PutMapping("/{email}")
-    public ResponseEntity<utilisateurs> updateUtilisateur(@PathVariable String email, @RequestBody utilisateurs updatedUtilisateur) {
-        return utilisateursRepository.findById(email).map(existingUtilisateur -> {
-            existingUtilisateur.setFkIdLaboratoire(updatedUtilisateur.getFkIdLaboratoire());
-            existingUtilisateur.setNomComplet(updatedUtilisateur.getNomComplet());
-            existingUtilisateur.setProfession(updatedUtilisateur.getProfession());
-            existingUtilisateur.setNumTel(updatedUtilisateur.getNumTel());
-            existingUtilisateur.setSignature(updatedUtilisateur.getSignature());
-            existingUtilisateur.setRole(updatedUtilisateur.getRole());
-            utilisateursRepository.save(existingUtilisateur);
-            return ResponseEntity.ok(existingUtilisateur);
-        }).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<?> updateUtilisateur(@PathVariable String email, @RequestBody Utilisateurs updatedUtilisateur) {
+        try{
+            Utilisateurs savedUser =  utilisateursService.updateContactLaboratoire(email , updatedUtilisateur);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        } catch (FeignException.NotFound e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Laboratoire n'existe pas");
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur: Une erreur est survenue lors de la mise a jour de l'utilisateur.");
+        }
     }
 
-    // Supprimer un utilisateur
+
     @DeleteMapping("/{email}")
     public ResponseEntity<Void> deleteUtilisateur(@PathVariable String email) {
         if (utilisateursRepository.existsById(email)) {
