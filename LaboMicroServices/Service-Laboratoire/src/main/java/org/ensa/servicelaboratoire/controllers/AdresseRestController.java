@@ -15,9 +15,8 @@ import java.util.Optional;
 @RequestMapping("/adresse")
 public class AdresseRestController {
 
-    @Autowired
-    private AdresseRepository adresseRepository;
 
+    private final AdresseRepository adresseRepository;
 
     public AdresseRestController(AdresseRepository adresseRepository) {
         this.adresseRepository = adresseRepository;

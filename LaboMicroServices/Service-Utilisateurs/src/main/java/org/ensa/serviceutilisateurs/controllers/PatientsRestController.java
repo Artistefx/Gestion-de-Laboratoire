@@ -15,8 +15,13 @@ import java.util.Optional;
 @RequestMapping("/patients")
 public class PatientsRestController {
 
-    @Autowired
-    private PatientRepository patientRepository;
+
+    private final PatientRepository patientRepository;
+
+
+    PatientsRestController(PatientRepository patientRepository) {
+        this.patientRepository = patientRepository;
+    }
 
 
     @PostMapping
@@ -36,6 +41,14 @@ public class PatientsRestController {
     public ResponseEntity<Patients> getPatientById(@PathVariable Long id) {
         Optional<Patients> patient = patientRepository.findById(id);
         return patient.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/exists/{id}")
+    public ResponseEntity<Boolean> patientExists(@PathVariable Long id) {
+        if (patientRepository.existsById(id)){
+            return ResponseEntity.ok(true);
+        }
+        return ResponseEntity.ok(false);
     }
 
 

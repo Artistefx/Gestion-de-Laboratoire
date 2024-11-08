@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -25,6 +26,9 @@ public class Laboratoire {
     private Long nrc;
     private boolean active;
     private LocalDate dateActivation;
+
+    @OneToMany(mappedBy = "laboratoire" , cascade = CascadeType.ALL)
+    private Set<ContactLaboratoire> contacts;
 
 
 

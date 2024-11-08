@@ -4,7 +4,9 @@ package org.ensa.serviceexamination.controllers;
 
 import org.ensa.serviceexamination.entities.Examin;
 import org.ensa.serviceexamination.repositories.ExaminRepository;
+import org.ensa.serviceexamination.services.ExaminService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,17 +17,25 @@ import java.util.Optional;
 @RequestMapping("/Examin")
 public class ExaminRestController {
 
-    @Autowired
-    private ExaminRepository examinRepository;
+
+    private final ExaminRepository examinRepository;
+    private final ExaminService examinService;
 
 
-    public ExaminRestController(ExaminRepository examinRepository) {
+    public ExaminRestController(ExaminRepository examinRepository,
+                                ExaminService examinService) {
         this.examinRepository = examinRepository;
+        this.examinService = examinService;
     }
 
     @PostMapping
-    public Examin createExamin(@RequestBody Examin examin) {
-        return examinRepository.save(examin);
+    public ResponseEntity<?> createExamin(@RequestBody Examin examin) {
+        try{
+            examinService.CreateOrUpdateExamin(examin);
+            return new ResponseEntity<>(examin, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 
@@ -42,18 +52,21 @@ public class ExaminRestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Examin> updateExamin(@PathVariable Long id, @RequestBody Examin updatedExamin) {
-        return examinRepository.findById(id).map(existingExamin -> {
-            // Set updated fields
-            existingExamin.setDossier(updatedExamin.getDossier()); // update the Dossier object
-            existingExamin.setFkIdEpreuve(updatedExamin.getFkIdEpreuve());
-            existingExamin.setFkIdTestAnalyse(updatedExamin.getFkIdTestAnalyse());
-            existingExamin.setResultat(updatedExamin.getResultat());
+    public ResponseEntity<?> updateExamin(@PathVariable Long id, @RequestBody Examin updatedExamin) {
 
-
-            Examin savedExamin = examinRepository.save(existingExamin);
-            return ResponseEntity.ok(savedExamin);
-        }).orElseGet(() -> ResponseEntity.notFound().build());
+        try{
+            examinRepository.findById(id).map(existingExamin -> {
+                existingExamin.setDossier(updatedExamin.getDossier()); // update the Dossier object
+                existingExamin.setFkIdEpreuve(updatedExamin.getFkIdEpreuve());
+                existingExamin.setFkIdTestAnalyse(updatedExamin.getFkIdTestAnalyse());
+                existingExamin.setResultat(updatedExamin.getResultat());
+                examinService.CreateOrUpdateExamin(existingExamin);
+                return new ResponseEntity<>(existingExamin, HttpStatus.CREATED);
+            }).orElseGet(() -> ResponseEntity.notFound().build());
+        }catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>("Probleme survenu lors de la mise a jour", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 

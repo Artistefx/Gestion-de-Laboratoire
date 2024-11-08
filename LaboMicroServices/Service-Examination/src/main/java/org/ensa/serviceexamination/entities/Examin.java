@@ -15,8 +15,9 @@ public class Examin {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @ManyToOne
-    @JoinColumn(name = "fkNumDossier" ,referencedColumnName = "numDossier")
+    @JoinColumn(name = "fkNumDossier" , referencedColumnName = "numDossier")
     private Dossier dossier;
 
     private Long fkIdEpreuve;

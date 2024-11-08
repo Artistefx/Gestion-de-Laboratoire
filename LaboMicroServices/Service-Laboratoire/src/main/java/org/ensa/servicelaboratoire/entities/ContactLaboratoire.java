@@ -15,7 +15,7 @@ public class ContactLaboratoire {
     @JoinColumn(name = "fkIdLaboratoire", referencedColumnName = "id")
     private Laboratoire laboratoire;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "fkIdAdresse", referencedColumnName = "id")
     private Adresse adresse;
     private Long numTel;
