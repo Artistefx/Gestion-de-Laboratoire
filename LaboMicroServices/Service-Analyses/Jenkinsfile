@@ -29,6 +29,19 @@ pipeline {
             }
         }
 
+        stage('SonarQube Analysis') {
+            when {
+                expression { currentBuild.description == "CHANGED" }
+            }
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    dir('LaboMicroServices/Service-Analyses') {
+                        bat 'mvn sonar:sonar'
+                    }
+                }
+            }
+        }
+
         stage('Build and Test Analyses Service') {
             when {
                 expression { currentBuild.description == "CHANGED" }
