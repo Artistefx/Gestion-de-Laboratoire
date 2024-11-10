@@ -2,12 +2,12 @@ pipeline {
     agent any
     tools {
         maven "maven-3.9.7"
+        sonarScanner 'SonarQubeScanner'
     }
     stages {
         stage('Check for Changes') {
             steps {
                 script {
-                    // Check if there are any changes in the specified folder
                     def changes = bat(script: 'git diff --name-only HEAD~1 HEAD', returnStdout: true).trim()
                     if (changes.contains("LaboMicroServices/Service-Laboratoire/")) {
                         echo "Changes detected in LaboMicroServices/Service-Laboratoire. Continuing with the build."
@@ -29,13 +29,25 @@ pipeline {
             }
         }
 
+        stage('SonarQube Analysis') {
+            when {
+                expression { currentBuild.description == "CHANGED" }
+            }
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    dir('LaboMicroServices/Service-Laboratoire') {
+                        bat 'mvn sonar:sonar'
+                    }
+                }
+            }
+        }
+
         stage('Build and Test Laboratoire Service') {
             when {
                 expression { currentBuild.description == "CHANGED" }
             }
             steps {
                 dir('LaboMicroServices/Service-Laboratoire') {
-                    // Run Maven build and tests
                     bat 'mvn clean install -DskipTests=false'
                 }
             }
@@ -47,7 +59,6 @@ pipeline {
             }
             steps {
                 dir('LaboMicroServices/Service-Laboratoire') {
-                    // Build the Docker image
                     bat 'docker build -t artistefx/service-laboratoire:latest .'
                 }
             }
