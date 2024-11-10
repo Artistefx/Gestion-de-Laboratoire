@@ -35,7 +35,7 @@ pipeline {
             }
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    dir('LaboMicroServices/Service-Laboratoire') {
+                    dir('LaboMicroServices/Service-Examination') {
                         bat 'mvn sonar:sonar'
                     }
                 }
