@@ -1,5 +1,6 @@
 package org.ensa.serviceexamination.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,6 +19,7 @@ public class Examin {
 
     @ManyToOne
     @JoinColumn(name = "fkNumDossier" , referencedColumnName = "numDossier")
+    @JsonBackReference
     private Dossier dossier;
 
     private Long fkIdEpreuve;

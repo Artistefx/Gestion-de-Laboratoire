@@ -1,5 +1,6 @@
 package org.ensa.serviceexamination.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,6 +23,7 @@ public class Dossier {
     private Long fkIdPatient;
     private LocalDate date;
 
-    @OneToMany(mappedBy = "dossier")
+    @OneToMany(mappedBy = "dossier" , fetch = FetchType.LAZY)
+    @JsonManagedReference
     private List<Examin>  examins;
 }

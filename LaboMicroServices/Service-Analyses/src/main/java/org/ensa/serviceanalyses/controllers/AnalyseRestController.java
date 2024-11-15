@@ -1,9 +1,13 @@
 package org.ensa.serviceanalyses.controllers;
 
 
+import feign.FeignException;
 import org.ensa.serviceanalyses.entities.Analyse;
+import org.ensa.serviceanalyses.entities.Epreuve;
 import org.ensa.serviceanalyses.repositories.AnalyseRepository;
+import org.ensa.serviceanalyses.services.AnalyseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,23 +18,40 @@ import java.util.Optional;
 @RequestMapping("/Analyse")
 public class AnalyseRestController {
 
-    @Autowired
-    private AnalyseRepository analyseRepository;
 
-    public AnalyseRestController(AnalyseRepository analyseRepository) {
+    private final AnalyseRepository analyseRepository;
+    private final AnalyseService analyseService;
+
+    public AnalyseRestController(AnalyseRepository analyseRepository,
+                                 AnalyseService analyseService) {
         this.analyseRepository = analyseRepository;
+        this.analyseService = analyseService;
     }
 
 
     @PostMapping
-    public Analyse createAnalyse(@RequestBody Analyse analyse) {
-        return analyseRepository.save(analyse);
+    public ResponseEntity<?> createAnalyse(@RequestBody Analyse analyse) {
+        try{
+            analyseService.createAnalyse(analyse);
+            return ResponseEntity.status(HttpStatus.CREATED).body(analyse);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        } catch (FeignException.NotFound e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Laboratoire n'existe pas");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur inconnue");
+        }
     }
 
 
     @GetMapping
     public List<Analyse> getAllAnalyses() {
         return analyseRepository.findAll();
+    }
+
+    @GetMapping("/byLaboratoire/{id}")
+    public List<Analyse> getAllEpreuvesByIdAnalyse(@PathVariable("id") long id) {
+        return analyseRepository.findAllByFkIdLaboratoire(id);
     }
 
     @GetMapping("/{id}")
@@ -41,14 +62,17 @@ public class AnalyseRestController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<Analyse> updateAnalyse(@PathVariable Long id, @RequestBody Analyse updatedAnalyse) {
-        return analyseRepository.findById(id).map(existingAnalyse -> {
-            existingAnalyse.setFkIdLaboratoire(updatedAnalyse.getFkIdLaboratoire());
-            existingAnalyse.setNom(updatedAnalyse.getNom());
-            existingAnalyse.setDescription(updatedAnalyse.getDescription());
-            Analyse savedAnalyse = analyseRepository.save(existingAnalyse);
-            return ResponseEntity.ok(savedAnalyse);
-        }).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<?> updateAnalyse(@PathVariable Long id, @RequestBody Analyse updatedAnalyse) {
+        try{
+            Analyse savedAnalyse =  analyseService.updateAnalyse(id , updatedAnalyse);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedAnalyse);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        } catch (FeignException.NotFound e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Laboratoire n'existe pas");
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur: Une erreur est survenue lors de la mise a jour de l'analyse.");
+        }
     }
 
 

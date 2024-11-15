@@ -24,18 +24,15 @@ public class DossierService {
     }
 
     @Transactional
-    public boolean CreateOrUpdateDossier (Dossier dossier){
-         if(Boolean.FALSE.equals(utilisateurClient.utlisateurExists(dossier.getFkEmailUtilisateur()).getBody())){
+    public Dossier CreateOrUpdateDossier (Dossier dossier){
+         if(Boolean.FALSE.equals(utilisateurClient.utilisateurExists(dossier.getFkEmailUtilisateur()).getBody())){
              throw new IllegalArgumentException("Utilisateur n'existe pas");
          }
 
         if(Boolean.FALSE.equals(patientClient.patientExists(dossier.getFkIdPatient()).getBody())){
             throw new IllegalArgumentException("Patient n'existe pas");
         }
-
         dossierRepository.save(dossier);
-
-        return true;
+        return dossier;
     }
-
 }

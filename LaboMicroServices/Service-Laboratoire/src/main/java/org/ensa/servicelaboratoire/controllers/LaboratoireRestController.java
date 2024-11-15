@@ -24,13 +24,18 @@ public class LaboratoireRestController {
 
 
     @PostMapping
-    public ResponseEntity<Laboratoire> createLaboratoire(@RequestBody Laboratoire Laboratoire) {
+    public ResponseEntity<?> createLaboratoire(@RequestBody Laboratoire Laboratoire) {
         try {
             Laboratoire savedLaboratoire = laboratoireRepository.save(Laboratoire);
             return new ResponseEntity<>(savedLaboratoire, HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping("/exists/{id}")
+    public ResponseEntity<Boolean> existsById(@PathVariable("id") Long id) {
+        return ResponseEntity.ok().body(laboratoireRepository.existsById(id));
     }
 
 

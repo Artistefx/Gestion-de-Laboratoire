@@ -44,6 +44,26 @@ public class ExaminRestController {
         return examinRepository.findAll();
     }
 
+    @GetMapping("/byDossier/{numDossier}")
+    public List<Examin> getAllExaminByDossier(@PathVariable Long numDossier) {
+        return examinRepository.findAllByDossier_NumDossier(numDossier);
+    }
+
+    @GetMapping("/byEpreuve/{id}")
+    public List<Examin> getAllExaminByEpreuve(@PathVariable Long id) {
+        return examinRepository.findAllByFkIdEpreuve(id);
+    }
+
+    @GetMapping("/byTestAnalyse/{id}")
+    public List<Examin> getAllExaminByTestAnalyse(@PathVariable Long id) {
+        return examinRepository.findAllByFkIdTestAnalyse(id);
+    }
+
+    @GetMapping("/byNumDossier/{numDossier}")
+    public List<Examin> getAllExamin(@PathVariable Long numDossier) {
+        return examinRepository.findAllByDossier_NumDossier(numDossier);
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Examin> getExaminById(@PathVariable Long id) {

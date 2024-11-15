@@ -10,5 +10,5 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface UtilisateurClient {
 
     @GetMapping("/exists/{email}")
-    ResponseEntity<Boolean> utlisateurExists(@PathVariable("email") String email);
+    ResponseEntity<Boolean> utilisateurExists(@PathVariable("email") String email);
 }

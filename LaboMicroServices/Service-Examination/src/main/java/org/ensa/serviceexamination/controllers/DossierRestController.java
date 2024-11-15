@@ -45,6 +45,16 @@ public class DossierRestController {
         return dossier.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/byUtilisateur/{email}")
+    public List<Dossier> getDossierByIdUtilistateur(@PathVariable String email) {
+        return dossierRepository.findAllByFkEmailUtilisateur(email);
+    }
+
+    @GetMapping("/byPassion/{id}")
+    public List<Dossier> getDossierByIdPassion(@PathVariable Long id) {
+        return dossierRepository.findAllByFkIdPatient(id);
+    }
+
     @PutMapping("/{numDossier}")
     public ResponseEntity<?> updateDossier(@PathVariable Long numDossier, @RequestBody Dossier updatedDossier) {
         try {
