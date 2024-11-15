@@ -13,5 +13,8 @@ public interface LaboratoireClient {
 
     @GetMapping("/{id}")
     LaboratoireDTO getLaboratoireById(@PathVariable("id") Long id);
+
+    @GetMapping("/exists/{id}")
+    ResponseEntity<Boolean> existsById(@PathVariable("id") Long id);
 }
 

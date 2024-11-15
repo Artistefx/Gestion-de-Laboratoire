@@ -1,10 +1,10 @@
 package org.ensa.serviceanalyses.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
 import lombok.*;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -18,6 +18,14 @@ public class Analyse {
     private Long fkIdLaboratoire;
     private String nom;
     private String description;
+
+    @OneToMany(mappedBy = "analyse")
+    @JsonManagedReference
+    private Set<Epreuve> epreuves;
+
+    @OneToMany(mappedBy = "analyse")
+    @JsonManagedReference
+    private Set<TestAnalyse> testAnalyses;
 }
 
 

@@ -21,7 +21,4 @@ public class ContactLaboratoire {
     private Long numTel;
     private Long fax;
     private String email ;
-
-
-
 }

@@ -1,8 +1,11 @@
 package org.ensa.serviceanalyses.controllers;
 
+import org.ensa.serviceanalyses.entities.Epreuve;
 import org.ensa.serviceanalyses.entities.TestAnalyse;
 import org.ensa.serviceanalyses.repositories.TestAnalyseRepository;
+import org.ensa.serviceanalyses.services.TestAnalyseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,11 +16,14 @@ import java.util.Optional;
 @RequestMapping("/testAnalyse")
 public class TestAnalyseRestController {
 
-    @Autowired
-    private TestAnalyseRepository testAnalyseRepository;
 
-    public TestAnalyseRestController(TestAnalyseRepository testAnalyseRepository) {
+    private final TestAnalyseRepository testAnalyseRepository;
+    private final TestAnalyseService testAnalyseService;
+
+    public TestAnalyseRestController(TestAnalyseRepository testAnalyseRepository,
+                                     TestAnalyseService testAnalyseService) {
         this.testAnalyseRepository = testAnalyseRepository;
+        this.testAnalyseService = testAnalyseService;
     }
 
 
@@ -26,32 +32,46 @@ public class TestAnalyseRestController {
         return testAnalyseRepository.findAll();
     }
 
+    @GetMapping("/byAnalyse/{id}")
+    public List<TestAnalyse> getAllEpreuvesByIdAnalyse(@PathVariable("id") long id) {
+        return testAnalyseRepository.findAllByAnalyse_Id(id);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<TestAnalyse> getTestAnalyseById(@PathVariable Long id) {
         Optional<TestAnalyse> testAnalyse = testAnalyseRepository.findById(id);
         return testAnalyse.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-
-    @PostMapping
-    public TestAnalyse addTestAnalyse(@RequestBody TestAnalyse newTestAnalyse) {
-        return testAnalyseRepository.save(newTestAnalyse);
+    @GetMapping("/exists/{id}")
+    ResponseEntity<Boolean> testAnalyseExists(@PathVariable("id") long id){
+        return ResponseEntity.ok(testAnalyseRepository.existsById(id));
     }
 
+    @PostMapping
+    public ResponseEntity<?> addTestAnalyse(@RequestBody TestAnalyse newTestAnalyse) {
+        try {
+            TestAnalyse createdTestAnalyse = testAnalyseService.createTestAnalyse(newTestAnalyse);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdTestAnalyse);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while creating the TestAnalyse");
+        }
+    }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TestAnalyse> updateTestAnalyse(@PathVariable Long id, @RequestBody TestAnalyse updatedTestAnalyse) {
-        return testAnalyseRepository.findById(id).map(existingTestAnalyse -> {
-            existingTestAnalyse.setAnalyse(updatedTestAnalyse.getAnalyse());
-            existingTestAnalyse.setNomTest(updatedTestAnalyse.getNomTest());
-            existingTestAnalyse.setSousEpreuve(updatedTestAnalyse.getSousEpreuve());
-            existingTestAnalyse.setIntervalMinDeReference(updatedTestAnalyse.getIntervalMinDeReference());
-            existingTestAnalyse.setIntervalMaxDeReference(updatedTestAnalyse.getIntervalMaxDeReference());
-            existingTestAnalyse.setUniteDeReference(updatedTestAnalyse.getUniteDeReference());
-            existingTestAnalyse.setDetails(updatedTestAnalyse.getDetails());
-            testAnalyseRepository.save(existingTestAnalyse);
-            return ResponseEntity.ok(existingTestAnalyse);
-        }).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<?> updateTestAnalyse(@PathVariable Long id, @RequestBody TestAnalyse updatedTestAnalyse) {
+        try {
+            TestAnalyse updatedTestAnalyseEntity = testAnalyseService.updateTestAnalyse(id, updatedTestAnalyse);
+            return ResponseEntity.ok(updatedTestAnalyseEntity);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while updating the TestAnalyse");
+        }
     }
 
 

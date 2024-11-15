@@ -29,8 +29,5 @@ public class Laboratoire {
 
     @OneToMany(mappedBy = "laboratoire" , cascade = CascadeType.ALL)
     private Set<ContactLaboratoire> contacts;
-
-
-
 }
 

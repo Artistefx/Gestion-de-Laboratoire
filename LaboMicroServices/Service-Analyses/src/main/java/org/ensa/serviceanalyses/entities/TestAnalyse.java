@@ -1,5 +1,6 @@
 package org.ensa.serviceanalyses.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,5 +28,6 @@ public class TestAnalyse {
 
     @ManyToOne
     @JoinColumn(name = "fkIdAnalyse", referencedColumnName = "id")
+    @JsonBackReference
     private Analyse analyse;
 }

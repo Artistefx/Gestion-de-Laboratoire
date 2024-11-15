@@ -42,8 +42,13 @@ public class UtilisateursRestController {
         return utilisateur.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/byLabo/{id}")
+    public ResponseEntity<List<Utilisateurs>> getAllByIdLabo(@PathVariable("id") Long id){
+        return ResponseEntity.ok(utilisateursRepository.findAllByFkIdLaboratoire(id));
+    }
+
     @GetMapping("/exists/{email}")
-    public ResponseEntity<Boolean> patientExists(@PathVariable String email) {
+    public ResponseEntity<Boolean> utilisateurExists(@PathVariable String email) {
         if (utilisateursRepository.existsById(email)){
             return ResponseEntity.ok(Boolean.TRUE);
         }
