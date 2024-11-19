@@ -10,6 +10,7 @@ import org.ensa.serviceutilisateurs.services.UtilisateursService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public class UtilisateursRestController {
 
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public List<Utilisateurs> utilisateursList() {
         return utilisateursRepository.findAll();
     }
@@ -43,6 +45,7 @@ public class UtilisateursRestController {
     }
 
     @GetMapping("/byLabo/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Utilisateurs>> getAllByIdLabo(@PathVariable("id") Long id){
         return ResponseEntity.ok(utilisateursRepository.findAllByFkIdLaboratoire(id));
     }
@@ -56,6 +59,7 @@ public class UtilisateursRestController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> addUtilisateur(@RequestBody Utilisateurs newUtilisateur) {
             try{
                 Utilisateurs savedUser = utilisateursService.createUtilisateur(newUtilisateur);
@@ -71,6 +75,7 @@ public class UtilisateursRestController {
 
 
     @PutMapping("/{email}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateUtilisateur(@PathVariable String email, @RequestBody Utilisateurs updatedUtilisateur) {
         try{
             Utilisateurs savedUser =  utilisateursService.updateContactLaboratoire(email , updatedUtilisateur);
@@ -86,6 +91,7 @@ public class UtilisateursRestController {
 
 
     @DeleteMapping("/{email}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUtilisateur(@PathVariable String email) {
         if (utilisateursRepository.existsById(email)) {
             utilisateursRepository.deleteById(email);

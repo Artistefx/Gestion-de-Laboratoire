@@ -6,6 +6,7 @@ import org.ensa.servicelaboratoire.entities.Adresse;
 import org.ensa.servicelaboratoire.repositories.AdresseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,18 +25,21 @@ public class AdresseRestController {
 
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public Adresse createAdresse(@RequestBody Adresse Adresse) {
         return adresseRepository.save(Adresse);
     }
 
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public List<Adresse> getAllAdresses() {
         return adresseRepository.findAll();
     }
 
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Adresse> getAdresseById(@PathVariable Long id) {
         Optional<Adresse> adresse = adresseRepository.findById(id);
         return adresse.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
@@ -43,6 +47,7 @@ public class AdresseRestController {
 
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Adresse> updateAdresse(@PathVariable Long id, @RequestBody Adresse updatedAdresse) {
         return adresseRepository.findById(id).map(existingAdresse -> {
             existingAdresse.setNumVoie(updatedAdresse.getNumVoie());
@@ -57,6 +62,7 @@ public class AdresseRestController {
 
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteAdresse(@PathVariable Long id) {
         if (adresseRepository.existsById(id)) {
             adresseRepository.deleteById(id);

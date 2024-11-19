@@ -8,6 +8,7 @@ import org.ensa.serviceexamination.services.ExaminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,6 +30,7 @@ public class ExaminRestController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('TECHNICIEN')")
     public ResponseEntity<?> createExamin(@RequestBody Examin examin) {
         try{
             examinService.CreateOrUpdateExamin(examin);
@@ -72,6 +74,7 @@ public class ExaminRestController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('TECHNICIEN')")
     public ResponseEntity<?> updateExamin(@PathVariable Long id, @RequestBody Examin updatedExamin) {
 
         try{

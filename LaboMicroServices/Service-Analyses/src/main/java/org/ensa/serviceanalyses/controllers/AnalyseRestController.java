@@ -9,6 +9,7 @@ import org.ensa.serviceanalyses.services.AnalyseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,6 +31,7 @@ public class AnalyseRestController {
 
 
     @PostMapping
+    @PreAuthorize("hasRole('TECHNICIEN')")
     public ResponseEntity<?> createAnalyse(@RequestBody Analyse analyse) {
         try{
             analyseService.createAnalyse(analyse);
@@ -62,6 +64,7 @@ public class AnalyseRestController {
 
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('TECHNICIEN')")
     public ResponseEntity<?> updateAnalyse(@PathVariable Long id, @RequestBody Analyse updatedAnalyse) {
         try{
             Analyse savedAnalyse =  analyseService.updateAnalyse(id , updatedAnalyse);
@@ -77,6 +80,7 @@ public class AnalyseRestController {
 
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('TECHNICIEN')")
     public ResponseEntity<Void> deleteAnalyse(@PathVariable Long id) {
         if (analyseRepository.existsById(id)) {
             analyseRepository.deleteById(id);

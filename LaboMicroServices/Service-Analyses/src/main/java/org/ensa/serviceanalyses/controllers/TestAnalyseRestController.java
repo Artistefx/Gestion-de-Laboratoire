@@ -7,6 +7,7 @@ import org.ensa.serviceanalyses.services.TestAnalyseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,6 +50,7 @@ public class TestAnalyseRestController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('TECHNICIEN')")
     public ResponseEntity<?> addTestAnalyse(@RequestBody TestAnalyse newTestAnalyse) {
         try {
             TestAnalyse createdTestAnalyse = testAnalyseService.createTestAnalyse(newTestAnalyse);
@@ -62,6 +64,7 @@ public class TestAnalyseRestController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('TECHNICIEN')")
     public ResponseEntity<?> updateTestAnalyse(@PathVariable Long id, @RequestBody TestAnalyse updatedTestAnalyse) {
         try {
             TestAnalyse updatedTestAnalyseEntity = testAnalyseService.updateTestAnalyse(id, updatedTestAnalyse);
@@ -77,6 +80,7 @@ public class TestAnalyseRestController {
 
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('TECHNICIEN')")
     public ResponseEntity<Void> deleteTestAnalyse(@PathVariable Long id) {
         if (testAnalyseRepository.existsById(id)) {
             testAnalyseRepository.deleteById(id);
