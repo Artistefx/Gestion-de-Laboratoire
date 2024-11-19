@@ -7,6 +7,7 @@ import org.ensa.servicelaboratoire.repositories.LaboratoireRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class LaboratoireRestController {
 
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createLaboratoire(@RequestBody Laboratoire Laboratoire) {
         try {
             Laboratoire savedLaboratoire = laboratoireRepository.save(Laboratoire);
@@ -34,12 +36,14 @@ public class LaboratoireRestController {
     }
 
     @GetMapping("/exists/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Boolean> existsById(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(laboratoireRepository.existsById(id));
     }
 
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Laboratoire>> getAllLaboratoires() {
         List<Laboratoire> laboratoires = laboratoireRepository.findAll();
         return new ResponseEntity<>(laboratoires, HttpStatus.OK);
@@ -47,6 +51,7 @@ public class LaboratoireRestController {
 
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Laboratoire> getLaboratoireById(@PathVariable("id") Long id) {
         Optional<Laboratoire> laboratoire = laboratoireRepository.findById(id);
         return laboratoire.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
@@ -55,6 +60,7 @@ public class LaboratoireRestController {
 
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Laboratoire> updateLaboratoire(@PathVariable("id") Long id, @RequestBody Laboratoire laboratoireDetails) {
         Optional<Laboratoire> laboratoireData = laboratoireRepository.findById(id);
 
@@ -73,6 +79,7 @@ public class LaboratoireRestController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Laboratoire> deleteLaboratoire(@PathVariable("id") Long id) {
         Optional<Laboratoire> laboratoire = laboratoireRepository.findById(id);
         if (laboratoire.isPresent()) {

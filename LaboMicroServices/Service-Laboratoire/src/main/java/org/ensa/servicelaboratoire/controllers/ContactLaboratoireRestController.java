@@ -8,6 +8,7 @@ import org.ensa.servicelaboratoire.services.ContactLaboratoireService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,12 +29,14 @@ public class ContactLaboratoireRestController {
 
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public List<ContactLaboratoire> getAllContacts() {
         return contactLaboratoireRepository.findAll();
     }
 
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ContactLaboratoire> getContactById(@PathVariable Long id) {
         Optional<ContactLaboratoire> contact = contactLaboratoireRepository.findById(id);
         return contact.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
@@ -41,6 +44,7 @@ public class ContactLaboratoireRestController {
 
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createContact(@RequestBody ContactLaboratoire contact) {
         try {
             ContactLaboratoire savedContact = contactLaboratoireService.createContactLaboratoire(contact);
@@ -54,6 +58,7 @@ public class ContactLaboratoireRestController {
 
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateContact(@PathVariable Long id, @RequestBody ContactLaboratoire updatedContact) {
         try {
             ContactLaboratoire savedContact = contactLaboratoireService.updateContactLaboratoire(id, updatedContact);
@@ -67,6 +72,7 @@ public class ContactLaboratoireRestController {
 
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteContact(@PathVariable Long id) {
         if (contactLaboratoireRepository.existsById(id)) {
             contactLaboratoireRepository.deleteById(id);

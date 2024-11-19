@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,6 +50,7 @@ public class EpreuveRestController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('TECHNICIEN')")
     public ResponseEntity<?> createEpreuve(@RequestBody Epreuve newEpreuve) {
         try {
             Epreuve createdEpreuve = epreuveService.createEpreuve(newEpreuve);
@@ -62,6 +64,7 @@ public class EpreuveRestController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('TECHNICIEN')")
     public ResponseEntity<?> updateEpreuve(@PathVariable Long id, @RequestBody Epreuve updatedEpreuve) {
         try {
             Epreuve updEpreuve = epreuveService.updateEpreuve(id, updatedEpreuve);
@@ -75,6 +78,7 @@ public class EpreuveRestController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('TECHNICIEN')")
     public ResponseEntity<Void> deleteEpreuve(@PathVariable Long id) {
         if (epreuveRepository.existsById(id)) {
             epreuveRepository.deleteById(id);
