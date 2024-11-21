@@ -59,7 +59,7 @@ pipeline {
             }
             steps {
                 dir('LaboMicroServices/Service-Analyses') {
-                    bat "docker build -t artistefx/service-analyses:${BUILD_NUMBER} ."
+                    bat "docker build -t artistefx/service-analyses:latest ."
                 }
             }
         }
@@ -72,7 +72,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'docker-artistefx', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
                     script {
                         bat 'docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%'
-                        bat "docker push artistefx/service-analyses:${BUILD_NUMBER}"
+                        bat "docker push artistefx/service-analyses:latest"
                     }
                 }
             }
@@ -85,6 +85,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'kubeconf', variable: 'KUBECONFIG_PATH')]) {
                     bat "kubectl --kubeconfig=%KUBECONFIG_PATH% apply -f k8s/Service-Analyses-Deployment.yaml"
+                    bat "kubectl --kubeconfig=%KUBECONFIG_PATH% rollout restart deployment service-analyses"
                 }
             }
         }
