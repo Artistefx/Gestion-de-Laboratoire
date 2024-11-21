@@ -47,13 +47,13 @@ pipeline {
             }
             steps {
                 script {
-                    // Generate a version tag
-                    def version = "v${BUILD_NUMBER}"
+                    // Generate a version tag, based on the build number or timestamp
+                    def version = "v${BUILD_NUMBER}" // You can customize this as needed
                     env.VERSION = version
                     
                     dir('LaboMicroServices/Service-Utilisateurs') {
-                        // Build the Docker image with the latest tag
-                        bat "docker build -t artistefx/service-utilisateurs:latest -t artistefx/service-utilisateurs:${VERSION} ."
+                        // Build the Docker image with the version tag
+                        bat "docker build -t artistefx/service-utilisateurs:${VERSION} ."
                     }
                 }
             }
@@ -66,9 +66,8 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-artistefx', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
                     script {
-                        // Push both the latest and versioned images
+                        // Push the versioned image to Docker Hub
                         bat 'docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%'
-                        bat "docker push artistefx/service-utilisateurs:latest"
                         bat "docker push artistefx/service-utilisateurs:${VERSION}"
                     }
                 }
@@ -81,6 +80,7 @@ pipeline {
             }
             steps {
                 withCredentials([string(credentialsId: 'kubeconf', variable: 'KUBECONFIG_PATH')]) {
+                    // Apply the Kubernetes YAML file
                     bat "kubectl --kubeconfig=%KUBECONFIG_PATH% apply -f k8s/Service-Utilisateurs-Deployment.yaml"
                 }
             }
