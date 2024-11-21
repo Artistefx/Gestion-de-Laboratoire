@@ -89,7 +89,7 @@ pipeline {
                 withCredentials([string(credentialsId: 'kubeconf', variable: 'KUBECONFIG_PATH')]) {
                     // Apply the Kubernetes YAML file
                     bat "kubectl --kubeconfig=%KUBECONFIG_PATH% apply -f k8s/Service-Utilisateurs-Deployment.yaml"
-                    bat "kubectl rollout restart deployment service-utilisateurs"
+                    bat "kubectl --kubeconfig=%KUBECONFIG_PATH% rollout restart deployment service-utilisateurs"
                 }
             }
         }
