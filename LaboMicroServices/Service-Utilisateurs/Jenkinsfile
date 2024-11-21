@@ -46,9 +46,15 @@ pipeline {
                 expression { currentBuild.description == "CHANGED" }
             }
             steps {
-                dir('LaboMicroServices/Service-Utilisateurs') {
-                    // Build the Docker image
-                    bat 'docker build -t artistefx/service-utilisateurs:latest .'
+                script {
+                    // Generate a version tag
+                    def version = "v${BUILD_NUMBER}"
+                    env.VERSION = version
+                    
+                    dir('LaboMicroServices/Service-Utilisateurs') {
+                        // Build the Docker image with the latest tag
+                        bat "docker build -t artistefx/service-utilisateurs:latest -t artistefx/service-utilisateurs:${VERSION} ."
+                    }
                 }
             }
         }
@@ -60,8 +66,10 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-artistefx', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
                     script {
+                        // Push both the latest and versioned images
                         bat 'docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%'
                         bat "docker push artistefx/service-utilisateurs:latest"
+                        bat "docker push artistefx/service-utilisateurs:${VERSION}"
                     }
                 }
             }
