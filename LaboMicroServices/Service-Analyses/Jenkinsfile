@@ -59,7 +59,7 @@ pipeline {
             }
             steps {
                 dir('LaboMicroServices/Service-Analyses') {
-                    bat 'docker build -t artistefx/service-analyses:latest .'
+                    bat "docker build -t artistefx/service-analyses:${BUILD_NUMBER} ."
                 }
             }
         }
@@ -72,7 +72,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'docker-artistefx', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
                     script {
                         bat 'docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%'
-                        bat "docker push artistefx/service-analyses:latest"
+                        bat "docker push artistefx/service-analyses:${BUILD_NUMBER}"
                     }
                 }
             }
