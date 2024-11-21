@@ -88,6 +88,7 @@ pipeline {
                 withCredentials([string(credentialsId: 'kubeconf', variable: 'KUBECONFIG_PATH')]) {
                     script {
                         bat "kubectl --kubeconfig=%KUBECONFIG_PATH% apply -f k8s/Service-Examination-Deployment.yaml"
+                        bat "kubectl rollout restart deployment service-examination"
                     }
                 }
             }
