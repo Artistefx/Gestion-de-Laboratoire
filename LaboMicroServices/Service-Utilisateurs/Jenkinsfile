@@ -29,6 +29,19 @@ pipeline {
             }
         }
 
+        stage('SonarQube Analysis') {
+            when {
+                expression { currentBuild.description == "CHANGED" }
+            }
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    dir('LaboMicroServices/Service-Utilisateurs') {
+                        bat 'mvn sonar:sonar'
+                    }
+                }
+            }
+        }
+
         stage('Build and Test Utilisateurs Service') {
             when {
                 expression { currentBuild.description == "CHANGED" }
@@ -46,16 +59,10 @@ pipeline {
                 expression { currentBuild.description == "CHANGED" }
             }
             steps {
-                script {
-                    // Generate a version tag, based on the build number or timestamp
-                    def version = "v${BUILD_NUMBER}" // You can customize this as needed
-                    env.VERSION = version
-                    
                     dir('LaboMicroServices/Service-Utilisateurs') {
                         // Build the Docker image with the version tag
-                        bat "docker build -t artistefx/service-utilisateurs:${VERSION} ."
+                        bat "docker build -t artistefx/service-utilisateurs::latest ."
                     }
-                }
             }
         }
 
@@ -68,7 +75,7 @@ pipeline {
                     script {
                         // Push the versioned image to Docker Hub
                         bat 'docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%'
-                        bat "docker push artistefx/service-utilisateurs:${VERSION}"
+                        bat "docker push artistefx/service-utilisateurs::latest"
                     }
                 }
             }
@@ -82,6 +89,7 @@ pipeline {
                 withCredentials([string(credentialsId: 'kubeconf', variable: 'KUBECONFIG_PATH')]) {
                     // Apply the Kubernetes YAML file
                     bat "kubectl --kubeconfig=%KUBECONFIG_PATH% apply -f k8s/Service-Utilisateurs-Deployment.yaml"
+                    bat "kubectl rollout restart deployment service-utilisateurs"
                 }
             }
         }
