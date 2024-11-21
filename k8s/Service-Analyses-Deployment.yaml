@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: service-analyses
-          image: artistefx/service-analyses  # Make sure this matches
+          image: artistefx/service-analyses:latest  # Make sure this matches
           ports:
             - containerPort: 8080  # Your service port
           imagePullPolicy: Always
