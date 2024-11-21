@@ -61,7 +61,7 @@ pipeline {
             steps {
                     dir('LaboMicroServices/Service-Utilisateurs') {
                         // Build the Docker image with the version tag
-                        bat "docker build -t artistefx/service-utilisateurs::latest ."
+                        bat "docker build -t artistefx/service-utilisateurs:latest ."
                     }
             }
         }
@@ -75,7 +75,7 @@ pipeline {
                     script {
                         // Push the versioned image to Docker Hub
                         bat 'docker login -u %DOCKERHUB_USERNAME% -p %DOCKERHUB_PASSWORD%'
-                        bat "docker push artistefx/service-utilisateurs::latest"
+                        bat "docker push artistefx/service-utilisateurs:latest"
                     }
                 }
             }
