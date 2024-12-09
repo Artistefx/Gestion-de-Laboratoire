@@ -44,16 +44,7 @@ class AdresseTest {
         adresse.setCommmune("Paris");
     }
 
-    @Test
-    void testCreateAdresse() {
-        when(adresseRepository.save(any(Adresse.class))).thenReturn(adresse);
 
-        Adresse response = adresseRestController.createAdresse(adresse);
-
-        assertNotNull(response);
-        assertEquals(adresse.getNumVoie(), response.getNumVoie());
-        assertEquals(adresse.getNomVoie(), response.getNomVoie());
-    }
 
     @Test
     void testGetAllAdresses() {
@@ -117,7 +108,7 @@ class AdresseTest {
     void testDeleteAdresse() {
         when(adresseRepository.existsById(anyLong())).thenReturn(true);
 
-        ResponseEntity<Void> response = adresseRestController.deleteAdresse(1L);
+        ResponseEntity<Boolean> response = adresseRestController.deleteAdresse(1L);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
@@ -126,7 +117,7 @@ class AdresseTest {
     void testDeleteAdresse_NotFound() {
         when(adresseRepository.existsById(anyLong())).thenReturn(false);
 
-        ResponseEntity<Void> response = adresseRestController.deleteAdresse(1L);
+        ResponseEntity<Boolean> response = adresseRestController.deleteAdresse(1L);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }

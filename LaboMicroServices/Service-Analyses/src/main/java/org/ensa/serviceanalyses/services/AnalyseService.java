@@ -21,8 +21,7 @@ public class AnalyseService {
     @Transactional
     public Analyse createAnalyse(Analyse analyse) {
         if (laboratoireClient.existsById(analyse.getFkIdLaboratoire()).getBody() == Boolean.TRUE) {
-            analyseRepository.save(analyse);
-            return analyse;
+            return analyseRepository.save(analyse);
         }
         else {
             throw new IllegalArgumentException("Laboratoire n'existe pas");
@@ -43,5 +42,13 @@ public class AnalyseService {
             existingAnalyse.setFkIdLaboratoire(updatedAnalyse.getFkIdLaboratoire());
             return analyseRepository.save(existingAnalyse);
         }).orElseThrow(() -> new IllegalArgumentException("Analyse n'existe pas"));
+    }
+
+    public boolean deleteAnalyse(Long id){
+        if (analyseRepository.existsById(id)) {
+            analyseRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 }

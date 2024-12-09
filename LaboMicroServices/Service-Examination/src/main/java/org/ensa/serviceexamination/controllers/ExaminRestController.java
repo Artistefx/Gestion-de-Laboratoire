@@ -94,12 +94,12 @@ public class ExaminRestController {
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteExamin(@PathVariable Long id) {
+    public ResponseEntity<Boolean> deleteExamin(@PathVariable Long id) {
         if (examinRepository.existsById(id)) {
             examinRepository.deleteById(id);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(true);
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
         }
     }
 }

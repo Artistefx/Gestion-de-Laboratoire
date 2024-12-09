@@ -68,7 +68,7 @@ public class AnalyseRestController {
     public ResponseEntity<?> updateAnalyse(@PathVariable Long id, @RequestBody Analyse updatedAnalyse) {
         try{
             Analyse savedAnalyse =  analyseService.updateAnalyse(id , updatedAnalyse);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedAnalyse);
+            return ResponseEntity.ok(savedAnalyse);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
         } catch (FeignException.NotFound e) {
@@ -81,12 +81,10 @@ public class AnalyseRestController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('TECHNICIEN')")
-    public ResponseEntity<Void> deleteAnalyse(@PathVariable Long id) {
-        if (analyseRepository.existsById(id)) {
-            analyseRepository.deleteById(id);
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<Boolean> deleteAnalyse(@PathVariable Long id) {
+        if (analyseService.deleteAnalyse(id)) {
+            return ResponseEntity.ok(true);
         }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
     }
 }

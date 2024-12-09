@@ -5,6 +5,7 @@ package org.ensa.serviceutilisateurs.controllers;
 import org.ensa.serviceutilisateurs.entities.Patients;
 import org.ensa.serviceutilisateurs.repositories.PatientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +26,7 @@ public class PatientsRestController {
 
 
     @PostMapping
-    public ResponseEntity<Patients> addPatient(@RequestBody Patients Patients) {
+    public ResponseEntity<Patients> createPatient(@RequestBody Patients Patients) {
         Patients savedPatient = patientRepository.save(Patients);
         return ResponseEntity.ok(savedPatient);
     }
@@ -70,12 +71,12 @@ public class PatientsRestController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePatient(@PathVariable Long id) {
+    public ResponseEntity<Boolean> deletePatient(@PathVariable Long id) {
         if (patientRepository.existsById(id)) {
             patientRepository.deleteById(id);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(true);
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
         }
     }
 }
