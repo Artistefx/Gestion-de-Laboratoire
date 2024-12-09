@@ -60,7 +60,7 @@ public class UtilisateursRestController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> addUtilisateur(@RequestBody Utilisateurs newUtilisateur) {
+    public ResponseEntity<?> createUtilisateur(@RequestBody Utilisateurs newUtilisateur) {
             try{
                 Utilisateurs savedUser = utilisateursService.createUtilisateur(newUtilisateur);
                 return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
@@ -92,11 +92,11 @@ public class UtilisateursRestController {
 
     @DeleteMapping("/{email}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteUtilisateur(@PathVariable String email) {
+    public ResponseEntity<Boolean> deleteUtilisateur(@PathVariable String email) {
         if (utilisateursRepository.existsById(email)) {
             utilisateursRepository.deleteById(email);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok(true);
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
     }
 }

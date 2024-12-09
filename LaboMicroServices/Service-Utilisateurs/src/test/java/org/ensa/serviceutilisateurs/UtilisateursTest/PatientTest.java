@@ -38,7 +38,7 @@ class PatientTest {
         Patients patient = new Patients();
         when(patientRepository.save(any(Patients.class))).thenReturn(patient);
 
-        ResponseEntity<Patients> response = patientsRestController.addPatient(patient);
+        ResponseEntity<Patients> response = patientsRestController.createPatient(patient);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(patient, response.getBody());
         verify(patientRepository, times(1)).save(any(Patients.class));
@@ -125,7 +125,7 @@ class PatientTest {
     void testDeletePatient_PatientExists() {
         when(patientRepository.existsById(1L)).thenReturn(true);
 
-        ResponseEntity<Void> response = patientsRestController.deletePatient(1L);
+        ResponseEntity<Boolean> response = patientsRestController.deletePatient(1L);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         verify(patientRepository, times(1)).deleteById(1L);
     }
@@ -134,7 +134,7 @@ class PatientTest {
     void testDeletePatient_PatientDoesNotExist() {
         when(patientRepository.existsById(1L)).thenReturn(false);
 
-        ResponseEntity<Void> response = patientsRestController.deletePatient(1L);
+        ResponseEntity<Boolean> response = patientsRestController.deletePatient(1L);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         verify(patientRepository, times(1)).existsById(1L);
         verify(patientRepository, never()).deleteById(1L);

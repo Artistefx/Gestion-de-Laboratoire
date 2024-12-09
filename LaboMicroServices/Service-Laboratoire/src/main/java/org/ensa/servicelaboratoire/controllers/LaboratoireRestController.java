@@ -80,12 +80,12 @@ public class LaboratoireRestController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Laboratoire> deleteLaboratoire(@PathVariable("id") Long id) {
+    public ResponseEntity<Boolean> deleteLaboratoire(@PathVariable("id") Long id) {
         Optional<Laboratoire> laboratoire = laboratoireRepository.findById(id);
         if (laboratoire.isPresent()) {
             laboratoireRepository.delete(laboratoire.get());
-            return new ResponseEntity<>(laboratoire.get(), HttpStatus.OK);
+            return ResponseEntity.ok(true);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
     }
 }

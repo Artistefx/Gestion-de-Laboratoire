@@ -51,7 +51,7 @@ public class TestAnalyseRestController {
 
     @PostMapping
     @PreAuthorize("hasRole('TECHNICIEN')")
-    public ResponseEntity<?> addTestAnalyse(@RequestBody TestAnalyse newTestAnalyse) {
+    public ResponseEntity<?> createTestAnalyse(@RequestBody TestAnalyse newTestAnalyse) {
         try {
             TestAnalyse createdTestAnalyse = testAnalyseService.createTestAnalyse(newTestAnalyse);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdTestAnalyse);
@@ -81,11 +81,11 @@ public class TestAnalyseRestController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('TECHNICIEN')")
-    public ResponseEntity<Void> deleteTestAnalyse(@PathVariable Long id) {
+    public ResponseEntity<Boolean> deleteTestAnalyse(@PathVariable Long id) {
         if (testAnalyseRepository.existsById(id)) {
             testAnalyseRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok(true);
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
     }
 }

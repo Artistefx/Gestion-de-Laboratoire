@@ -79,11 +79,11 @@ public class EpreuveRestController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('TECHNICIEN')")
-    public ResponseEntity<Void> deleteEpreuve(@PathVariable Long id) {
+    public ResponseEntity<Boolean> deleteEpreuve(@PathVariable Long id) {
         if (epreuveRepository.existsById(id)) {
             epreuveRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok(true);
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
     }
 }

@@ -73,12 +73,12 @@ public class ContactLaboratoireRestController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteContact(@PathVariable Long id) {
+    public ResponseEntity<Boolean> deleteContact(@PathVariable Long id) {
         if (contactLaboratoireRepository.existsById(id)) {
             contactLaboratoireRepository.deleteById(id);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(true);
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
         }
     }
 }

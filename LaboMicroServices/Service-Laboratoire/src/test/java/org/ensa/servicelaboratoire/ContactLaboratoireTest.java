@@ -143,7 +143,7 @@ class ContactLaboratoireTest {
     void testDeleteContact() {
         when(contactLaboratoireRepository.existsById(anyLong())).thenReturn(true);
 
-        ResponseEntity<Void> response = contactLaboratoireRestController.deleteContact(1L);
+        ResponseEntity<Boolean> response = contactLaboratoireRestController.deleteContact(1L);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         verify(contactLaboratoireRepository, times(1)).deleteById(anyLong());
@@ -153,7 +153,7 @@ class ContactLaboratoireTest {
     void testDeleteContact_NotFound() {
         when(contactLaboratoireRepository.existsById(anyLong())).thenReturn(false);
 
-        ResponseEntity<Void> response = contactLaboratoireRestController.deleteContact(1L);
+        ResponseEntity<Boolean> response = contactLaboratoireRestController.deleteContact(1L);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }

@@ -104,7 +104,7 @@ class UtilisateursTest {
         Utilisateurs utilisateur = new Utilisateurs();
         when(utilisateursService.createUtilisateur(any(Utilisateurs.class))).thenReturn(utilisateur);
 
-        ResponseEntity<?> response = utilisateursRestController.addUtilisateur(utilisateur);
+        ResponseEntity<?> response = utilisateursRestController.createUtilisateur(utilisateur);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(utilisateur, response.getBody());
         verify(utilisateursService, times(1)).createUtilisateur(any(Utilisateurs.class));
@@ -114,7 +114,7 @@ class UtilisateursTest {
     void testAddUtilisateur_BadRequest() {
         when(utilisateursService.createUtilisateur(any(Utilisateurs.class))).thenThrow(new IllegalArgumentException("Invalid data"));
 
-        ResponseEntity<?> response = utilisateursRestController.addUtilisateur(new Utilisateurs());
+        ResponseEntity<?> response = utilisateursRestController.createUtilisateur(new Utilisateurs());
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("Invalid data", response.getBody());
     }
@@ -134,7 +134,7 @@ class UtilisateursTest {
     void testDeleteUtilisateur_UserExists() {
         when(utilisateursRepository.existsById("test@example.com")).thenReturn(true);
 
-        ResponseEntity<Void> response = utilisateursRestController.deleteUtilisateur("test@example.com");
+        ResponseEntity<Boolean> response = utilisateursRestController.deleteUtilisateur("test@example.com");
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         verify(utilisateursRepository, times(1)).deleteById("test@example.com");
     }
@@ -143,7 +143,7 @@ class UtilisateursTest {
     void testDeleteUtilisateur_UserDoesNotExist() {
         when(utilisateursRepository.existsById("nonexistent@example.com")).thenReturn(false);
 
-        ResponseEntity<Void> response = utilisateursRestController.deleteUtilisateur("nonexistent@example.com");
+        ResponseEntity<Boolean> response = utilisateursRestController.deleteUtilisateur("nonexistent@example.com");
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         verify(utilisateursRepository, never()).deleteById("nonexistent@example.com");
     }

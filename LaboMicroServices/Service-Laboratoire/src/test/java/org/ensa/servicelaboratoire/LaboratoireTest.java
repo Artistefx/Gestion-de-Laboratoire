@@ -116,7 +116,7 @@ class LaboratoireTest {
     void testDeleteLaboratoire() {
         when(laboratoireRepository.findById(anyLong())).thenReturn(Optional.of(laboratoire));
 
-        ResponseEntity<Laboratoire> response = laboratoireRestController.deleteLaboratoire(1L);
+        ResponseEntity<Boolean> response = laboratoireRestController.deleteLaboratoire(1L);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
@@ -125,7 +125,7 @@ class LaboratoireTest {
     void testDeleteLaboratoire_NotFound() {
         when(laboratoireRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        ResponseEntity<Laboratoire> response = laboratoireRestController.deleteLaboratoire(1L);
+        ResponseEntity<Boolean> response = laboratoireRestController.deleteLaboratoire(1L);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }

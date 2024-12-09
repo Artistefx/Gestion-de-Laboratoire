@@ -3,8 +3,10 @@ package org.ensa.servicelaboratoire.controllers;
 
 
 import org.ensa.servicelaboratoire.entities.Adresse;
+import org.ensa.servicelaboratoire.entities.ContactLaboratoire;
 import org.ensa.servicelaboratoire.repositories.AdresseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -26,8 +28,9 @@ public class AdresseRestController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public Adresse createAdresse(@RequestBody Adresse Adresse) {
-        return adresseRepository.save(Adresse);
+    public ResponseEntity<?> createAdresse(@RequestBody Adresse Adresse) {
+        adresseRepository.save(Adresse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(Adresse);
     }
 
 
@@ -63,12 +66,12 @@ public class AdresseRestController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteAdresse(@PathVariable Long id) {
+    public ResponseEntity<Boolean> deleteAdresse(@PathVariable Long id) {
         if (adresseRepository.existsById(id)) {
             adresseRepository.deleteById(id);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(true);
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
         }
     }
 }
