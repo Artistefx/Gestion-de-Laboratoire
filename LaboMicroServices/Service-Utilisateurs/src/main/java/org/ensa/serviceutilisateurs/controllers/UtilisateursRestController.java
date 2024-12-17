@@ -78,7 +78,7 @@ public class UtilisateursRestController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateUtilisateur(@PathVariable String email, @RequestBody Utilisateurs updatedUtilisateur) {
         try{
-            Utilisateurs savedUser =  utilisateursService.updateContactLaboratoire(email , updatedUtilisateur);
+            Utilisateurs savedUser =  utilisateursService.updateUtilisateur(email , updatedUtilisateur);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());

@@ -2,6 +2,7 @@ package org.ensa.serviceexamination.controllers;
 
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.ensa.serviceexamination.entities.Examin;
 import org.ensa.serviceexamination.repositories.ExaminRepository;
 import org.ensa.serviceexamination.services.ExaminService;
@@ -83,7 +84,11 @@ public class ExaminRestController {
                 existingExamin.setFkIdEpreuve(updatedExamin.getFkIdEpreuve());
                 existingExamin.setFkIdTestAnalyse(updatedExamin.getFkIdTestAnalyse());
                 existingExamin.setResultat(updatedExamin.getResultat());
-                examinService.CreateOrUpdateExamin(existingExamin);
+                try {
+                    examinService.CreateOrUpdateExamin(existingExamin);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
                 return new ResponseEntity<>(existingExamin, HttpStatus.CREATED);
             }).orElseGet(() -> ResponseEntity.notFound().build());
         }catch (Exception e){

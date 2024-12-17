@@ -20,6 +20,7 @@
     <module>Service-Laboratoire</module>
     <module>Service-Analyses</module>
     <module>Service-Examination</module>
+    <module>Service-messagerie</module>
   </modules>
 
   <properties>

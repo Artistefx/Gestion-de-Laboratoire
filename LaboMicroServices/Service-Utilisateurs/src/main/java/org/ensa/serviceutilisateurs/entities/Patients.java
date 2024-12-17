@@ -25,5 +25,5 @@ public class Patients {
     private String numTel;
     private String email;
     private String visible_pour;
-
+    private Long fkIdLaboratoire;
 }

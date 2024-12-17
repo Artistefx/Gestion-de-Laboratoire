@@ -2,8 +2,11 @@ package org.ensa.serviceutilisateurs.controllers;
 
 
 
+import feign.FeignException;
 import org.ensa.serviceutilisateurs.entities.Patients;
+import org.ensa.serviceutilisateurs.entities.Utilisateurs;
 import org.ensa.serviceutilisateurs.repositories.PatientRepository;
+import org.ensa.serviceutilisateurs.services.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,17 +21,27 @@ public class PatientsRestController {
 
 
     private final PatientRepository patientRepository;
+    private final PatientService patientService;
 
 
-    PatientsRestController(PatientRepository patientRepository) {
+    PatientsRestController(PatientRepository patientRepository, PatientService patientService) {
         this.patientRepository = patientRepository;
+        this.patientService = patientService;
     }
 
 
     @PostMapping
-    public ResponseEntity<Patients> createPatient(@RequestBody Patients Patients) {
-        Patients savedPatient = patientRepository.save(Patients);
-        return ResponseEntity.ok(savedPatient);
+    public ResponseEntity<?> createPatient(@RequestBody Patients Patients) {
+        try{
+            Patients savedPatient = patientService.createPatient(Patients);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedPatient);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        } catch (FeignException.NotFound e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Laboratoire n'existe pas");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(/*"Erreur: Une erreur est survenue lors de la creation du patient."*/e.getMessage());
+        }
     }
 
 
@@ -54,20 +67,17 @@ public class PatientsRestController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<Patients> updatePatient(@PathVariable Long id, @RequestBody Patients updatedPatient) {
-        return patientRepository.findById(id).map(existingPatient -> {
-            existingPatient.setNomComplet(updatedPatient.getNomComplet());
-            existingPatient.setDateNaissance(updatedPatient.getDateNaissance());
-            existingPatient.setLieuDeNaissance(updatedPatient.getLieuDeNaissance());
-            existingPatient.setSexe(updatedPatient.getSexe());
-            existingPatient.setNumPieceIdentite(updatedPatient.getNumPieceIdentite());
-            existingPatient.setAdresse(updatedPatient.getAdresse());
-            existingPatient.setNumTel(updatedPatient.getNumTel());
-            existingPatient.setEmail(updatedPatient.getEmail());
-            existingPatient.setVisible_pour(updatedPatient.getVisible_pour());
-            patientRepository.save(existingPatient);
-            return ResponseEntity.ok(existingPatient);
-        }).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<?> updatePatient(@PathVariable Long id, @RequestBody Patients updatedPatient) {
+        try{
+            Patients updatesPatient = patientService.updatePatient(id, updatedPatient);
+            return ResponseEntity.status(HttpStatus.CREATED).body(updatesPatient);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        } catch (FeignException.NotFound e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Laboratoire n'existe pas");
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur: Une erreur est survenue lors de la mise a jour du patient.");
+        }
     }
 
     @DeleteMapping("/{id}")

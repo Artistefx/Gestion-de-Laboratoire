@@ -1,5 +1,6 @@
 package org.ensa.serviceutilisateurs.UtilisateursTest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import feign.FeignException;
 import org.ensa.serviceutilisateurs.controllers.UtilisateursRestController;
 import org.ensa.serviceutilisateurs.entities.Utilisateurs;
@@ -100,7 +101,7 @@ class UtilisateursTest {
     }
 
     @Test
-    void testAddUtilisateur_Success() {
+    void testAddUtilisateur_Success() throws JsonProcessingException {
         Utilisateurs utilisateur = new Utilisateurs();
         when(utilisateursService.createUtilisateur(any(Utilisateurs.class))).thenReturn(utilisateur);
 
@@ -111,7 +112,7 @@ class UtilisateursTest {
     }
 
     @Test
-    void testAddUtilisateur_BadRequest() {
+    void testAddUtilisateur_BadRequest() throws JsonProcessingException {
         when(utilisateursService.createUtilisateur(any(Utilisateurs.class))).thenThrow(new IllegalArgumentException("Invalid data"));
 
         ResponseEntity<?> response = utilisateursRestController.createUtilisateur(new Utilisateurs());
@@ -122,12 +123,12 @@ class UtilisateursTest {
     @Test
     void testUpdateUtilisateur_Success() {
         Utilisateurs utilisateur = new Utilisateurs();
-        when(utilisateursService.updateContactLaboratoire(eq("test@example.com"), any(Utilisateurs.class))).thenReturn(utilisateur);
+        when(utilisateursService.updateUtilisateur(eq("test@example.com"), any(Utilisateurs.class))).thenReturn(utilisateur);
 
         ResponseEntity<?> response = utilisateursRestController.updateUtilisateur("test@example.com", utilisateur);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(utilisateur, response.getBody());
-        verify(utilisateursService, times(1)).updateContactLaboratoire(eq("test@example.com"), any(Utilisateurs.class));
+        verify(utilisateursService, times(1)).updateUtilisateur(eq("test@example.com"), any(Utilisateurs.class));
     }
 
     @Test
