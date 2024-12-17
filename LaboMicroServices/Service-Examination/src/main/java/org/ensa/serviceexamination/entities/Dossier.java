@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -19,6 +20,10 @@ public class Dossier {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long numDossier;
+
+    @Column(unique = true, nullable = false, updatable = false)
+    private String uniqueId;
+
     private String fkEmailUtilisateur;
     private Long fkIdPatient;
     private LocalDate date;
@@ -26,4 +31,11 @@ public class Dossier {
     @OneToMany(mappedBy = "dossier" , fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<Examin>  examins;
+
+    @PrePersist
+    public void generateUniqueId() {
+        if (this.uniqueId == null) {
+            this.uniqueId = UUID.randomUUID().toString();
+        }
+    }
 }

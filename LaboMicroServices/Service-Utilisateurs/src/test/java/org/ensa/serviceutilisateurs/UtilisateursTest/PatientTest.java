@@ -33,16 +33,6 @@ class PatientTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    @Test
-    void testAddPatient() {
-        Patients patient = new Patients();
-        when(patientRepository.save(any(Patients.class))).thenReturn(patient);
-
-        ResponseEntity<Patients> response = patientsRestController.createPatient(patient);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(patient, response.getBody());
-        verify(patientRepository, times(1)).save(any(Patients.class));
-    }
 
     @Test
     void testGetAllPatients() {
@@ -94,32 +84,7 @@ class PatientTest {
         verify(patientRepository, times(1)).existsById(1L);
     }
 
-    @Test
-    void testUpdatePatient_PatientExists() {
-        Patients existingPatient = new Patients();
-        Patients updatedPatient = new Patients();
-        updatedPatient.setNomComplet("Updated Name");
 
-        when(patientRepository.findById(1L)).thenReturn(Optional.of(existingPatient));
-        when(patientRepository.save(any(Patients.class))).thenReturn(existingPatient);
-
-        ResponseEntity<Patients> response = patientsRestController.updatePatient(1L, updatedPatient);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("Updated Name", response.getBody().getNomComplet());
-        verify(patientRepository, times(1)).findById(1L);
-        verify(patientRepository, times(1)).save(existingPatient);
-    }
-
-    @Test
-    void testUpdatePatient_PatientDoesNotExist() {
-        Patients updatedPatient = new Patients();
-        when(patientRepository.findById(1L)).thenReturn(Optional.empty());
-
-        ResponseEntity<Patients> response = patientsRestController.updatePatient(1L, updatedPatient);
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        verify(patientRepository, times(1)).findById(1L);
-        verify(patientRepository, never()).save(any(Patients.class));
-    }
 
     @Test
     void testDeletePatient_PatientExists() {

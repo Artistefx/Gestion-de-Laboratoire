@@ -1,6 +1,7 @@
 package org.ensa.serviceexamination.clients;
 
 
+import org.ensa.serviceexamination.DTO.PatientDTO;
 import org.ensa.serviceexamination.FeignClientConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
@@ -12,4 +13,7 @@ public interface PatientClient {
 
     @GetMapping("/exists/{id}")
     ResponseEntity<Boolean> patientExists(@PathVariable("id") long id);
+
+    @GetMapping("/{id}")
+    ResponseEntity<PatientDTO> getPatientById(@PathVariable Long id);
 }

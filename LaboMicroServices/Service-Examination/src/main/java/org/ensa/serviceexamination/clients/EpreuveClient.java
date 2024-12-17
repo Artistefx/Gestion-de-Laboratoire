@@ -1,6 +1,7 @@
 package org.ensa.serviceexamination.clients;
 
 
+import org.ensa.serviceexamination.DTO.EpreuveDTO;
 import org.ensa.serviceexamination.FeignClientConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
@@ -12,4 +13,7 @@ public interface EpreuveClient {
 
     @GetMapping("/exists/{id}")
     ResponseEntity<Boolean> epreuveExists(@PathVariable("id") long id);
+
+    @GetMapping("/{id}")
+    ResponseEntity<EpreuveDTO> getEpreuveById(@PathVariable Long id);
 }

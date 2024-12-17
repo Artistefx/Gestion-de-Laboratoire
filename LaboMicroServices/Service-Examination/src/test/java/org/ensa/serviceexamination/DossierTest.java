@@ -1,5 +1,6 @@
 package org.ensa.serviceexamination;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.ensa.serviceexamination.controllers.DossierRestController;
 import org.ensa.serviceexamination.entities.Dossier;
 import org.ensa.serviceexamination.repositories.DossierRepository;
@@ -38,7 +39,7 @@ class DossierTest {
     }
 
     @Test
-    void testCreateDossier() {
+    void testCreateDossier() throws JsonProcessingException {
         Dossier dossier = new Dossier();
         when(dossierService.CreateOrUpdateDossier(any(Dossier.class))).thenReturn(dossier);
 
@@ -99,7 +100,7 @@ class DossierTest {
     }
 
     @Test
-    void testUpdateDossier_DossierExists() {
+    void testUpdateDossier_DossierExists() throws JsonProcessingException {
         Dossier existingDossier = new Dossier();
         Dossier updatedDossier = new Dossier();
         updatedDossier.setFkEmailUtilisateur("updated@example.com");
@@ -115,7 +116,7 @@ class DossierTest {
     }
 
     @Test
-    void testUpdateDossier_DossierDoesNotExist() {
+    void testUpdateDossier_DossierDoesNotExist() throws JsonProcessingException {
         Dossier updatedDossier = new Dossier();
         when(dossierRepository.findById(1L)).thenReturn(Optional.empty());
 

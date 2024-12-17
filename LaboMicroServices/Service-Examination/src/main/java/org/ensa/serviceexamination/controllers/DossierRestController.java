@@ -1,5 +1,6 @@
 package org.ensa.serviceexamination.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.ensa.serviceexamination.entities.Dossier;
 import org.ensa.serviceexamination.repositories.DossierRepository;
 import org.ensa.serviceexamination.services.DossierService;
@@ -63,7 +64,11 @@ public class DossierRestController {
                 existingDossier.setFkIdPatient(updatedDossier.getFkIdPatient());
                 existingDossier.setDate(updatedDossier.getDate());
                 existingDossier.setExamins(updatedDossier.getExamins());
-                dossierService.CreateOrUpdateDossier(existingDossier);
+                try {
+                    dossierService.CreateOrUpdateDossier(existingDossier);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
                 return new ResponseEntity<>(existingDossier, HttpStatus.OK);
             }).orElseGet(() -> ResponseEntity.notFound().build());
         } catch (Exception e) {

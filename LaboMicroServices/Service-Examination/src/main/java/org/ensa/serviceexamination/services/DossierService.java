@@ -1,12 +1,19 @@
 package org.ensa.serviceexamination.services;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.transaction.Transactional;
+import org.ensa.serviceexamination.DTO.PatientDTO;
 import org.ensa.serviceexamination.clients.PatientClient;
 import org.ensa.serviceexamination.clients.UtilisateurClient;
 import org.ensa.serviceexamination.entities.Dossier;
+import org.ensa.serviceexamination.producers.NotificationProducer;
 import org.ensa.serviceexamination.repositories.DossierRepository;
 import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+
 
 @Service
 public class DossierService {
@@ -14,25 +21,46 @@ public class DossierService {
     private final DossierRepository dossierRepository;
     private final UtilisateurClient utilisateurClient;
     private final PatientClient patientClient;
+    private final NotificationProducer notificationProducer;
 
     public DossierService (DossierRepository dossierRepository,
                            UtilisateurClient utilisateurClient,
-                           PatientClient patientClient){
+                           PatientClient patientClient, NotificationProducer notificationProducer){
         this.dossierRepository = dossierRepository;
         this.utilisateurClient = utilisateurClient;
         this.patientClient = patientClient;
+        this.notificationProducer = notificationProducer;
     }
 
     @Transactional
-    public Dossier CreateOrUpdateDossier (Dossier dossier){
+    public Dossier CreateOrUpdateDossier (Dossier dossier) throws JsonProcessingException {
          if(Boolean.FALSE.equals(utilisateurClient.utilisateurExists(dossier.getFkEmailUtilisateur()).getBody())){
              throw new IllegalArgumentException("Utilisateur n'existe pas");
          }
 
         if(Boolean.FALSE.equals(patientClient.patientExists(dossier.getFkIdPatient()).getBody())){
+            System.out.println(dossier.getFkIdPatient());
+            System.out.println(patientClient.patientExists(dossier.getFkIdPatient()).getBody());
             throw new IllegalArgumentException("Patient n'existe pas");
         }
         dossierRepository.save(dossier);
+        this.sendMail(dossier.getFkIdPatient(), dossier.getUniqueId());
         return dossier;
+    }
+
+    public void sendMail (Long id , String CodeDossier) throws JsonProcessingException {
+        PatientDTO patientDTO = patientClient.getPatientById(id).getBody();
+
+        HashMap<String, String> variables = new HashMap<String,String>();
+        variables.put("nom" , patientDTO.getNomComplet());
+        variables.put("codeDossier", CodeDossier);
+
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        String formattedDateTime = currentDateTime.format(formatter);
+
+        variables.put("dateCreation", formattedDateTime);
+
+        notificationProducer.sendEmail(patientDTO.getEmail(), "Dossier cree", "dossier-cree.html", variables);
     }
 }

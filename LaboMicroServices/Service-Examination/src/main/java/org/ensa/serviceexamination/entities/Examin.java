@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Entity
 @Getter
 @Setter
@@ -17,6 +19,9 @@ public class Examin {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false, updatable = false)
+    private String uniqueId;
+
     @ManyToOne
     @JoinColumn(name = "fkNumDossier" , referencedColumnName = "numDossier")
     @JsonBackReference
@@ -26,4 +31,10 @@ public class Examin {
     private Long fkIdTestAnalyse;
     private String resultat;
 
+    @PrePersist
+    public void generateUniqueId() {
+        if (this.uniqueId == null) {
+            this.uniqueId = UUID.randomUUID().toString();
+        }
+    }
 }
