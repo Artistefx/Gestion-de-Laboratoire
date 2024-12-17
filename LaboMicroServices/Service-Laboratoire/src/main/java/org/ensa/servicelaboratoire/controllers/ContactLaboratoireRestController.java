@@ -14,8 +14,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/contactLaboratoire")
+
 public class ContactLaboratoireRestController {
 
     private final ContactLaboratoireRepository contactLaboratoireRepository;
@@ -44,16 +46,9 @@ public class ContactLaboratoireRestController {
 
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> createContact(@RequestBody ContactLaboratoire contact) {
-        try {
-            ContactLaboratoire savedContact = contactLaboratoireService.createContactLaboratoire(contact);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedContact);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-        } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur: Une erreur est survenue lors de la création du contact.");
-        }
+   // @PreAuthorize("hasRole('ADMIN')")
+    public ContactLaboratoire createContact(@RequestBody ContactLaboratoire contact) {
+        return contactLaboratoireRepository.save(contact);
     }
 
 

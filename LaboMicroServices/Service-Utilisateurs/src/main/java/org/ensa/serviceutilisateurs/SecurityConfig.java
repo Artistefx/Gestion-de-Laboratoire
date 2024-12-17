@@ -14,7 +14,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity
 public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
@@ -31,11 +30,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/auth/**", "/register").permitAll()  // Permit public endpoints
-                        .anyRequest().authenticated()  // Secure all other endpoints
+                        .anyRequest().permitAll()  // Secure all other endpoints
                 )
-                .csrf(csrf -> csrf.disable())  // Disable CSRF for JWT
-                .addFilterBefore(new JwtFilter(jwtUtil, utilisateursService), UsernamePasswordAuthenticationFilter.class);
+                .csrf(csrf -> csrf.disable()); // Disable CSRF for JWT
+
 
         return http.build();
     }

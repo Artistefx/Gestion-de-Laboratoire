@@ -10,7 +10,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
 @EnableFeignClients
-@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class ServiceUtilisateursApplication {
 
     public static void main(String[] args) {

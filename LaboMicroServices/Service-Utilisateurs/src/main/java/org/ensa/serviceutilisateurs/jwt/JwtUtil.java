@@ -22,7 +22,7 @@ public class JwtUtil {
                 .withSubject(username)
                 .withClaim("roles", roles) // Add roles as a custom claim
                 .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15)) // 15 minutes
+                .withExpiresAt(new Date(System.currentTimeMillis() +1000 * 60 * 60 * 24 * 20)) // 15 minutes
                 .sign(algorithm);
     }
 

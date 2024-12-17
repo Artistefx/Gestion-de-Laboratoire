@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/utilisateurs")
 public class UtilisateursRestController {
@@ -59,7 +59,7 @@ public class UtilisateursRestController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+
     public ResponseEntity<?> addUtilisateur(@RequestBody Utilisateurs newUtilisateur) {
             try{
                 Utilisateurs savedUser = utilisateursService.createUtilisateur(newUtilisateur);
@@ -68,10 +68,10 @@ public class UtilisateursRestController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
             } catch (FeignException.NotFound e) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Laboratoire n'existe pas");
-            } catch (Exception e) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur inconnue");
-            }
-    }
+//            } catch (Exception e) {
+//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur inconnue");
+//            }
+    }}
 
 
     @PutMapping("/{email}")

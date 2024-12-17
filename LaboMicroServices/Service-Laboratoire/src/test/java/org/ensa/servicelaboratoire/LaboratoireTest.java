@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +38,7 @@ class LaboratoireTest {
         laboratoire = new Laboratoire();
         laboratoire.setId(1L);
         laboratoire.setNom("Laboratoire 1");
-        laboratoire.setLogo("logo.png".getBytes());
+        laboratoire.setLogo(Arrays.toString("logo.png".getBytes()));
         laboratoire.setNrc(10L);
         laboratoire.setActive(true);
         laboratoire.setDateActivation(LocalDate.parse("2024-01-01"));

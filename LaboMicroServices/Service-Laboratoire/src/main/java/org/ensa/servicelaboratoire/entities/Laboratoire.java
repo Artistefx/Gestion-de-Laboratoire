@@ -1,5 +1,6 @@
 package org.ensa.servicelaboratoire.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,13 +22,13 @@ public class Laboratoire {
     private Long id;
     private String nom;
 
-    @Lob
-    private byte[] logo;
+    private String logo;
     private Long nrc;
     private boolean active;
     private LocalDate dateActivation;
 
     @OneToMany(mappedBy = "laboratoire" , cascade = CascadeType.ALL)
+    @JsonManagedReference
     private Set<ContactLaboratoire> contacts;
 }
 

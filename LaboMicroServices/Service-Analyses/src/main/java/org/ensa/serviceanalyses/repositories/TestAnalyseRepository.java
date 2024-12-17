@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface TestAnalyseRepository extends JpaRepository<TestAnalyse,Long> {
 
-    List<TestAnalyse> findAllByAnalyse_Id(Long id);
+
 }

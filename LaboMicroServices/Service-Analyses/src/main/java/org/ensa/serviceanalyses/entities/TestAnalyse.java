@@ -26,8 +26,7 @@ public class TestAnalyse {
     private String uniteDeReference;
     private String details;
 
-    @ManyToOne
-    @JoinColumn(name = "fkIdAnalyse", referencedColumnName = "id")
-    @JsonBackReference
-    private Analyse analyse;
+    @OneToOne(mappedBy = "testAnalyse")
+    private Epreuve epreuve;
+
 }

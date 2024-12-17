@@ -23,9 +23,6 @@ public class Analyse {
     @JsonManagedReference
     private Set<Epreuve> epreuves;
 
-    @OneToMany(mappedBy = "analyse")
-    @JsonManagedReference
-    private Set<TestAnalyse> testAnalyses;
 }
 
 

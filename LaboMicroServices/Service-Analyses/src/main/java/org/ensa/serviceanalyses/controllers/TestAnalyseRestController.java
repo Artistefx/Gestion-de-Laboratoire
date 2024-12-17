@@ -33,10 +33,10 @@ public class TestAnalyseRestController {
         return testAnalyseRepository.findAll();
     }
 
-    @GetMapping("/byAnalyse/{id}")
-    public List<TestAnalyse> getAllEpreuvesByIdAnalyse(@PathVariable("id") long id) {
-        return testAnalyseRepository.findAllByAnalyse_Id(id);
-    }
+//    @GetMapping("/byAnalyse/{id}")
+//    public List<TestAnalyse> getAllEpreuvesByIdAnalyse(@PathVariable("id") long id) {
+//        return testAnalyseRepository.findAllByAnalyse_Id(id);
+//    }
 
     @GetMapping("/{id}")
     public ResponseEntity<TestAnalyse> getTestAnalyseById(@PathVariable Long id) {

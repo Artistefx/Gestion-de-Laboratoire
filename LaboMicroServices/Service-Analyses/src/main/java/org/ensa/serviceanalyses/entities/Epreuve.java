@@ -18,4 +18,7 @@ public class Epreuve {
     @JsonBackReference
     private Analyse analyse;
     private String nom;
+
+    @OneToOne
+    private TestAnalyse testAnalyse;
 }

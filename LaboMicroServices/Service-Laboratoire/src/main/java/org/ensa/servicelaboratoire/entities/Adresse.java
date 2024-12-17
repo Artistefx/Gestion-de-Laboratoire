@@ -1,5 +1,6 @@
 package org.ensa.servicelaboratoire.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,5 +20,6 @@ public class Adresse {
     private String commmune ;
 
     @OneToOne(mappedBy = "adresse")
+    @JsonBackReference
     private ContactLaboratoire contactLaboratoire;
 }

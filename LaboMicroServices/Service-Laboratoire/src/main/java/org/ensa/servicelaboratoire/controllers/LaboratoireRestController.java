@@ -9,12 +9,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/laboratoire")
+
 public class LaboratoireRestController {
 
     private final LaboratoireRepository laboratoireRepository;
@@ -24,8 +28,7 @@ public class LaboratoireRestController {
     }
 
 
-    @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/add")
     public ResponseEntity<?> createLaboratoire(@RequestBody Laboratoire Laboratoire) {
         try {
             Laboratoire savedLaboratoire = laboratoireRepository.save(Laboratoire);
@@ -36,7 +39,7 @@ public class LaboratoireRestController {
     }
 
     @GetMapping("/exists/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+
     public ResponseEntity<Boolean> existsById(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(laboratoireRepository.existsById(id));
     }
@@ -60,17 +63,27 @@ public class LaboratoireRestController {
 
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Laboratoire> updateLaboratoire(@PathVariable("id") Long id, @RequestBody Laboratoire laboratoireDetails) {
+
+    public ResponseEntity<Laboratoire> updateLaboratoire(
+            @PathVariable("id") Long id,
+            @RequestParam("nom") String nom,
+            @RequestParam(value = "nrc", required = false) long nrc,
+            @RequestParam(value = "active", required = false) boolean active,
+            @RequestParam(value = "dateActivation", required = false) String dateActivation,
+            @RequestParam(value = "logo", required = false) MultipartFile logo) {
+
         Optional<Laboratoire> laboratoireData = laboratoireRepository.findById(id);
 
         if (laboratoireData.isPresent()) {
             Laboratoire laboratoire = laboratoireData.get();
-            laboratoire.setNom(laboratoireDetails.getNom());
-            laboratoire.setLogo(laboratoireDetails.getLogo());
-            laboratoire.setNrc(laboratoireDetails.getNrc());
-            laboratoire.setActive(laboratoireDetails.isActive());
-            laboratoire.setDateActivation(laboratoireDetails.getDateActivation());
+            laboratoire.setNom(nom);
+            laboratoire.setNrc(nrc);
+            laboratoire.setActive(active);
+            laboratoire.setDateActivation(LocalDate.parse(dateActivation)); // Conversion de String en LocalDate
+            if (logo != null && !logo.isEmpty()) {
+                // Gérer la sauvegarde du fichier (par exemple, stocker le chemin du fichier)
+                laboratoire.setLogo(logo.getOriginalFilename());
+            }
 
             return new ResponseEntity<>(laboratoireRepository.save(laboratoire), HttpStatus.OK);
         } else {
@@ -79,7 +92,7 @@ public class LaboratoireRestController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+
     public ResponseEntity<Laboratoire> deleteLaboratoire(@PathVariable("id") Long id) {
         Optional<Laboratoire> laboratoire = laboratoireRepository.findById(id);
         if (laboratoire.isPresent()) {
