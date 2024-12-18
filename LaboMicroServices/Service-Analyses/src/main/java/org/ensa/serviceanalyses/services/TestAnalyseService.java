@@ -20,22 +20,16 @@ public class TestAnalyseService {
     }
 
     public TestAnalyse createTestAnalyse(TestAnalyse testAnalyse) {
-        if (analyseRepository.existsById(testAnalyse.getAnalyse().getId())) {
+
             return testAnalyseRepository.save(testAnalyse);
-        } else {
-            throw new IllegalArgumentException("Analyse not found for given ID");
-        }
+
     }
 
     public TestAnalyse updateTestAnalyse(Long id, TestAnalyse updatedTestAnalyse) {
         TestAnalyse existingTestAnalyse = testAnalyseRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("TestAnalyse not found for given ID"));
 
-        if (!analyseRepository.existsById(updatedTestAnalyse.getAnalyse().getId())) {
-            throw new IllegalArgumentException("Analyse not found for given ID");
-        }
 
-        existingTestAnalyse.setAnalyse(updatedTestAnalyse.getAnalyse());
         existingTestAnalyse.setNomTest(updatedTestAnalyse.getNomTest());
         existingTestAnalyse.setSousEpreuve(updatedTestAnalyse.getSousEpreuve());
         existingTestAnalyse.setIntervalMinDeReference(updatedTestAnalyse.getIntervalMinDeReference());

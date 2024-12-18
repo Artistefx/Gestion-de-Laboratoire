@@ -16,6 +16,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/contactLaboratoire")
+@CrossOrigin(origins = "http://localhost:4200")
 public class ContactLaboratoireRestController {
 
     private final ContactLaboratoireRepository contactLaboratoireRepository;
