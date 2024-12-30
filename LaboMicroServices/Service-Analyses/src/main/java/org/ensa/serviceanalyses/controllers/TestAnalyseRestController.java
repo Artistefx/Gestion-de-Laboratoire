@@ -44,6 +44,12 @@ public class TestAnalyseRestController {
         return testAnalyse.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/public/{id}")
+    public ResponseEntity<TestAnalyse> publicGetTestAnalyseById(@PathVariable Long id) {
+        Optional<TestAnalyse> testAnalyse = testAnalyseRepository.findById(id);
+        return testAnalyse.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/exists/{id}")
     ResponseEntity<Boolean> testAnalyseExists(@PathVariable("id") long id){
         return ResponseEntity.ok(testAnalyseRepository.existsById(id));

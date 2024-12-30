@@ -56,6 +56,18 @@ public class DossierRestController {
         return dossierRepository.findAllByFkIdPatient(id);
     }
 
+    @GetMapping("/public/byUniqueId/{uid}")
+    public ResponseEntity<Dossier> getDossierByUniqueId(@PathVariable String uid) {
+        Optional<Dossier> dossier = dossierService.getDossierByUniqueId(uid);
+        return dossier.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/public/recover/{email}")
+    public ResponseEntity<String> recoverDossier(@PathVariable String email) throws JsonProcessingException {
+        dossierService.recoverDossier(email);
+        return ResponseEntity.ok("Dossier recupere");
+    }
+
     @PutMapping("/{numDossier}")
     public ResponseEntity<?> updateDossier(@PathVariable Long numDossier, @RequestBody Dossier updatedDossier) {
         try {

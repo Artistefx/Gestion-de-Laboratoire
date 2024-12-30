@@ -44,6 +44,12 @@ public class UtilisateursRestController {
         return utilisateur.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/public/{email}")
+    public ResponseEntity<Utilisateurs> publicGetUtilisateurByEmail(@PathVariable String email) {
+        Optional<Utilisateurs> utilisateur = utilisateursRepository.findById(email);
+        return utilisateur.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/byLabo/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Utilisateurs>> getAllByIdLabo(@PathVariable("id") Long id){

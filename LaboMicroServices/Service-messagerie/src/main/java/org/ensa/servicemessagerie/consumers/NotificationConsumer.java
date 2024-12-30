@@ -33,7 +33,6 @@ public class NotificationConsumer {
     public void handleEmail(String jsonPayload) throws JsonProcessingException {
         System.out.println("Received JSON: " + jsonPayload);
         ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, String> variables = new HashMap<>();
         EmailRequest emailRequest = objectMapper.readValue(jsonPayload, EmailRequest.class); // Convert JSON string to object
         EmailService emailService = new EmailService(username,password);
         emailService.sendEmail(emailRequest.getRecipient(), emailRequest.getSubject(), emailRequest.getTemplateName(), emailRequest.getVariables());

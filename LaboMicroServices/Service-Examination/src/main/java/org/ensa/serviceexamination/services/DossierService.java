@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -48,10 +50,14 @@ public class DossierService {
         return dossier;
     }
 
+    public Optional<Dossier> getDossierByUniqueId(String uid) {
+        return dossierRepository.findDossierByUniqueId(uid);
+    }
+
     public void sendMail (Long id , String CodeDossier) throws JsonProcessingException {
         PatientDTO patientDTO = patientClient.getPatientById(id).getBody();
 
-        HashMap<String, String> variables = new HashMap<String,String>();
+        HashMap<String, String> variables = new HashMap<>();
         variables.put("nom" , patientDTO.getNomComplet());
         variables.put("codeDossier", CodeDossier);
 
@@ -62,5 +68,16 @@ public class DossierService {
         variables.put("dateCreation", formattedDateTime);
 
         notificationProducer.sendEmail(patientDTO.getEmail(), "Dossier cree", "dossier-cree.html", variables);
+    }
+
+    public void recoverDossier(String email) throws JsonProcessingException {
+        PatientDTO patientDTO = patientClient.getPatientByEmail(email).getBody();
+        Dossier dossier = dossierRepository.findDossierByFkIdPatient(patientDTO.getIdPatient()).orElseThrow(() -> new IllegalArgumentException("Dossier n'existe pas"));
+
+        HashMap<String, String> variables = new HashMap<>();
+        variables.put("nom" , patientDTO.getNomComplet());
+        variables.put("codeDossier", dossier.getUniqueId());
+
+        notificationProducer.sendEmail(patientDTO.getEmail(), "Recuperation de Dossier", "dossier-recupere.html", variables);
     }
 }

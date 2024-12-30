@@ -58,10 +58,7 @@ public class UtilisateursService implements UserDetailsService {
 
             laboratoireClient.getLaboratoireById(updatedutilisateurs.getFkIdLaboratoire());
 
-            String encodedPassword = passwordEncoder.encode(updatedutilisateurs.getPassword());
-
             existingUtilisateur.setNomComplet(updatedutilisateurs.getNomComplet());
-            existingUtilisateur.setPassword(encodedPassword);
             existingUtilisateur.setProfession(updatedutilisateurs.getProfession());
             existingUtilisateur.setRole(updatedutilisateurs.getRole());
             existingUtilisateur.setSignature(updatedutilisateurs.getSignature());
