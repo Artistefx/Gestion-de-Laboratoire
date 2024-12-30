@@ -57,6 +57,18 @@ public class PatientsRestController {
         return patient.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/public/{id}")
+    public ResponseEntity<Patients> publicGetPatientById(@PathVariable Long id) {
+        Optional<Patients> patient = patientRepository.findById(id);
+        return patient.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/public/byEmail/{email}")
+    public ResponseEntity<Patients> getPatientByEmail(@PathVariable String email) {
+        Optional<Patients> patient = patientService.getPatientByemail(email);
+        return patient.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/exists/{id}")
     public ResponseEntity<Boolean> patientExists(@PathVariable Long id) {
         if (patientRepository.existsById(id)){
@@ -87,6 +99,19 @@ public class PatientsRestController {
             return ResponseEntity.ok(true);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
+        }
+    }
+
+    @GetMapping("public/verify/{id}")
+    public ResponseEntity<String> verifyPatient(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(patientService.verifyPatient(id));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        } catch (FeignException.NotFound e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Patient n'existe pas");
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur: Une erreur est survenue lors de la verification du patient.");
         }
     }
 }

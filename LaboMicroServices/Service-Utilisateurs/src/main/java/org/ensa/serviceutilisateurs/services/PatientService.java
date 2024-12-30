@@ -8,6 +8,10 @@ import org.ensa.serviceutilisateurs.producers.NotificationProducer;
 import org.ensa.serviceutilisateurs.repositories.PatientRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Optional;
+
 @Service
 public class PatientService {
 
@@ -48,5 +52,22 @@ public class PatientService {
 
             return patientRepository.save(existingPatient);
         }).orElseThrow(() -> new IllegalArgumentException("Patient n'existe pas avec cette ID"));
+    }
+
+    public String verifyPatient(Long id) throws JsonProcessingException {
+       Patients patients = patientRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Patient n'existe pas avec cette ID"));
+       String code = String.valueOf((int) (Math.random() * 10000));
+       System.out.println(code);
+       Date dateExpiration = new Date(System.currentTimeMillis() + 60000);
+        HashMap<String, String> variables = new HashMap<>();
+        variables.put("nom", patients.getNomComplet());
+        variables.put("codeVerification", code);
+        variables.put("dateExpiration", dateExpiration.toString());
+       notificationProducer.sendEmail(patients.getEmail(), "Code de Verification", "code-verif.html", variables);
+       return code;
+    }
+
+    public Optional<Patients> getPatientByemail(String email) {
+        return patientRepository.findByEmail(email);
     }
 }

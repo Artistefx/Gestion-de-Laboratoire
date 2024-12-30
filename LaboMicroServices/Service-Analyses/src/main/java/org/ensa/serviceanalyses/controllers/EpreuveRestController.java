@@ -44,6 +44,12 @@ public class EpreuveRestController {
         return epreuve.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/public/{id}")
+    public ResponseEntity<Epreuve> publicGetEpreuveById(@PathVariable Long id) {
+        Optional<Epreuve> epreuve = epreuveRepository.findById(id);
+        return epreuve.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/exists/{id}")
     ResponseEntity<Boolean> epreuveExists(@PathVariable("id") long id){
         return ResponseEntity.ok(epreuveRepository.existsById(id));
