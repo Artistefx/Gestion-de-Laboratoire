@@ -24,5 +24,3 @@ public class Analyse {
     private Set<Epreuve> epreuves;
 
 }
-
-
