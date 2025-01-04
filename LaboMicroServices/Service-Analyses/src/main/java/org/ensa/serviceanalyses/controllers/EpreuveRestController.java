@@ -63,9 +63,6 @@ public class EpreuveRestController {
             return ResponseEntity.status(HttpStatus.CREATED).body(createdEpreuve);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred while creating the epreuve");
         }
     }
 

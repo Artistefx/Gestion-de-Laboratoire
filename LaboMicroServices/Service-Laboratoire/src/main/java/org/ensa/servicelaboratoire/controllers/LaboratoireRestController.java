@@ -58,6 +58,13 @@ public class LaboratoireRestController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @GetMapping("/public/{id}")
+    public ResponseEntity<Laboratoire> publicGetLaboratoireById(@PathVariable("id") Long id) {
+        Optional<Laboratoire> laboratoire = laboratoireRepository.findById(id);
+        return laboratoire.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")

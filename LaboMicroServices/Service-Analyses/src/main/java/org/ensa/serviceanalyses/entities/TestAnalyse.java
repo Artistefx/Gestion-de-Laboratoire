@@ -27,5 +27,6 @@ public class TestAnalyse {
     private String details;
 
     @OneToOne(mappedBy = "testAnalyse")
+    @JsonBackReference
     private Epreuve epreuve;
 }
