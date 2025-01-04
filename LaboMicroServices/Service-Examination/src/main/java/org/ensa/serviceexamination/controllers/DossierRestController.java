@@ -9,7 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -63,9 +65,11 @@ public class DossierRestController {
     }
 
     @GetMapping("/public/recover/{email}")
-    public ResponseEntity<String> recoverDossier(@PathVariable String email) throws JsonProcessingException {
+    public ResponseEntity<Map<String, String>> recoverDossier(@PathVariable String email) throws JsonProcessingException {
         dossierService.recoverDossier(email);
-        return ResponseEntity.ok("Dossier recupere");
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Dossier recupere");
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{numDossier}")
