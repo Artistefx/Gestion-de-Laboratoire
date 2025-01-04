@@ -1,6 +1,7 @@
 package org.ensa.serviceanalyses.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,6 +28,7 @@ public class TestAnalyse {
     private String details;
 
     @OneToOne(mappedBy = "testAnalyse")
+
     @JsonBackReference
     private Epreuve epreuve;
 }
